@@ -1,0 +1,8 @@
+# Source shell interactive
+. ~/.shell/interactive
+
+# Set aliat for ls with color
+alias ls='ls --color=auto'
+
+# Prompt
+PS1='[\u@\h \W]\$ '

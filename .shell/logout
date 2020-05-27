@@ -1,0 +1,5 @@
+# Put things to do once leaving console here
+
+# Kill ssh-agent Daemons
+ssh-add -D
+ssh-agent -k

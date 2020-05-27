@@ -1,0 +1,19 @@
+#
+# Aliases
+#
+
+# Check bettery status
+alias battery_status='upower -i /org/freedesktop/UPower/devices/battery_BAT0| grep -E "state|to\ full|percentage"'
+
+# Update mirror list
+update_mirrors() {
+	curl -s "https://www.archlinux.org/mirrorlist/?country=FR&country=GB&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 -
+}
+
+# Lauch steam with preloaded libs
+rsteam() {
+	env LD_PRELOAD="/usr/lib/libgio-2.0.so.0 /usr/lib/libglib-2.0.so.0" steam-native > /tmp/dumps/steam_stdout.txt 2> /tmp/dumps/steam_errout.txt &
+}
+
+# Dotfiles config alias
+alias config='/usr/bin/git --git-dir=/home/vchadha/.cfg/ --work-tree=/home/vchadha'
