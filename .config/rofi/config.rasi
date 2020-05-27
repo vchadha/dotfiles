@@ -1,0 +1,8 @@
+configuration {
+    modi:           "window,drun,calc,ssh";
+    show-icons:     true;
+    icon-theme:     "Paper";
+    sidebar-mode:   false;
+    display-drun:   "";
+    theme:          "theme_solarized_dark.rasi";
+}
