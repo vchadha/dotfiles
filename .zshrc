@@ -10,9 +10,6 @@ ZSH_THEME="agnoster"
 # Hyphen insensitive completion
 HYPHEN_INSENSITIVE="true"
 
-# Command auto-correction
-ENABLE_CORRECTION="true"
-
 # Red dots whilst waiting for completion
 COMPLETION_WAITING_DOTS="true"
 
