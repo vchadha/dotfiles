@@ -2,7 +2,7 @@
 
 entries=" Lock, Logout, Suspend, Reboot, Shutdown"
 
-selected=$(echo $entries | rofi -m 0 -dmenu -sep ',' -p "power" -i | awk '{print tolower($1)}')
+selected=$(echo $entries | rofi -m 0 -dmenu -sep ',' -p "power" -i | awk '{print tolower($2)}')
 
 case $selected in
   lock) 
