@@ -68,7 +68,7 @@ for_window [class="zoom"] inhibit_idle fullscreen
 ### Application properties
 # Allow floating
 for_window [app_id="kitty"] floating enbale
-for_window [app_id="org.kde.dolphin"] floating enable
+for_window [app_id="org.gnome.Nautilus"] floating enable
 for_window [app_id="telegramdesktop"] floating enable
 for_window [app_id="pavucontrol"] floating enable
 for_window [app_id="blueman-manager"] floating enable
@@ -77,6 +77,7 @@ for_window [class="zoom"] floating enable
 for_window [class="discord"] floating enable
 for_window [class="Signal"] floating enable
 for_window [class="Slack"] floating enable
+for_window [class="Steam"] floating enable
 
 ### Input configuration
 # You can get the names of your inputs by running: swaymsg -t get_inputs
