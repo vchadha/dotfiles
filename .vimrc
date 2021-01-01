@@ -1,12 +1,17 @@
-" Load pathogen 
-execute pathogen#infect()
+"
+" Plugins
+"
 
-" Enable syntax 
-syntax enable
-
-" Enable solarized theme
-set background=dark
-colorscheme solarized
+" TODO: one day make some of these lazy load
+if &loadplugins
+    if has('packages')
+        packadd! tcomment_vim
+        packadd! goyo.vim
+        packadd! nerdtree
+        packadd! nerdtree-git-plugin
+        packadd! vim-devicons
+    endif
+endif
 
 "
 " Tabs and spaces
@@ -48,3 +53,21 @@ set hlsearch
 " Unhighligh results with \+<space>
 nnoremap <leader><space> :nohlsearch<CR>
 
+"
+" History
+"
+
+" Number of lines to remember
+set history=200
+
+"
+" Alerts
+"
+
+set noerrorbells
+set novisualbell
+
+"
+" Enable Syntax
+"
+syntax enable
