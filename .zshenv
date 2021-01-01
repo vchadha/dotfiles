@@ -1,3 +1,3 @@
 # Source zsh env
-source ~/.zsh/env
+source $HOME/.zsh/env
 

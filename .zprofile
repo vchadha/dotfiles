@@ -1,4 +1,4 @@
 # Source zsh env and login
-source ~/.zsh/env
-source ~/.zsh/login
+source $HOME/.zsh/env
+source $HOME/.zsh/login
 

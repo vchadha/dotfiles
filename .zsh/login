@@ -1,2 +1,3 @@
 # Source shell login
-. ~/.shell/login
+source $HOME/.shell/login
+

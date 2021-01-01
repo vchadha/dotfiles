@@ -1,3 +1,3 @@
 # Source shell logout
-. ~/.shell/logout
+source $HOME/.shell/logout
 

@@ -3,4 +3,4 @@
 #
 
 # Source bash logout
-source ~/.bash/logout
+source $HOME/.bash/logout

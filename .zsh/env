@@ -1,2 +1,2 @@
 # Source shell env
-. ~/.shell/env
+source $HOME/.shell/env

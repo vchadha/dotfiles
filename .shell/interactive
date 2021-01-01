@@ -2,6 +2,9 @@
 # Aliases
 #
 
+# Set aliat for ls with color                                                                         
+alias ls='ls --color=auto'
+
 # Check bettery status
 alias battery_status='upower -i /org/freedesktop/UPower/devices/battery_BAT0| grep -E "state|to\ full|percentage"'
 
@@ -17,3 +20,8 @@ rsteam() {
 
 # Dotfiles config alias
 alias config='/usr/bin/git --git-dir=/home/vchadha/.cfg/ --work-tree=/home/vchadha'
+
+#
+# Start up programs
+#
+
