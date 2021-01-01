@@ -12,36 +12,6 @@ alias ....='cd ../..'
 # Functions
 #
 
-# Append $1 to $PATH, unless already present.
-# If present, moves it to the end.
-# See also: prepend_path().
-function append_path() {
-    PATH=${PATH//":$1:"/:}      # Delete (potentially multiple) from middle.
-    PATH=${PATH/#"$1:"/}        # Delete from start.
-    PATH=${PATH/%":$1"/}        # Delete from end.
-    PATH="${PATH:+$PATH:}$1"    # Actually append (or if PATH is empty, just set).
-}
-
-# Prepend $1 to $PATH, unless already present.
-# If present, moves it to the start.
-# See also: append_path().
-function prepend_path() {
-    PATH=${PATH//":$1:"/:}          # Delete (potentially multiple) from middle.
-    PATH=${PATH/#"$1:"/}            # Delete from start.
-    PATH=${PATH/%":$1"/}            # Delete from end.
-    PATH="$1${PATH:+:$PATH}$1"      # Actually prepend (or if PATH is empty, just set).
-}
-
-# Create temp scratch dir
-function scratch() {
-    local SCRATCH=$(mktemp -d)
-    echo 'Spawing subshell in scratch directory:'
-    echo "  $SCRATCH"
-    (cd $SCRATCH; zsh)
-    echo "Removing scratch directory"
-    rm -rf "$SCRATCH"
-}
-
 # Print a pruned version of a tree.
 #
 # Examples:

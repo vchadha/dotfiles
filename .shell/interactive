@@ -2,11 +2,18 @@
 # Aliases
 #
 
-# Set aliat for ls with color                                                                         
+# Set alias for ls with color
 alias ls='ls --color=auto'
 
 # Check bettery status
 alias battery_status='upower -i /org/freedesktop/UPower/devices/battery_BAT0| grep -E "state|to\ full|percentage"'
+
+# Dotfiles config alias
+alias config='/usr/bin/git --git-dir=/home/vchadha/.cfg/ --work-tree=/home/vchadha'
+
+#
+# Functions
+#
 
 # Update mirror list
 update_mirrors() {
@@ -18,8 +25,41 @@ rsteam() {
 	env LD_PRELOAD="/usr/lib/libgio-2.0.so.0 /usr/lib/libglib-2.0.so.0" steam-native > /tmp/dumps/steam_stdout.txt 2> /tmp/dumps/steam_errout.txt &
 }
 
-# Dotfiles config alias
-alias config='/usr/bin/git --git-dir=/home/vchadha/.cfg/ --work-tree=/home/vchadha'
+# Append $1 to $PATH, unless already present.
+# If present, moves it to the end.
+# See also: prepend_path().
+function append_path() {
+    PATH=${PATH//":$1:"/:}      # Delete (potentially multiple) from middle.
+    PATH=${PATH/#"$1:"/}        # Delete from start.
+    PATH=${PATH/%":$1"/}        # Delete from end.
+    PATH="${PATH:+$PATH:}$1"    # Actually append (or if PATH is empty, just set).
+}
+
+# Prepend $1 to $PATH, unless already present.
+# If present, moves it to the start.
+# See also: append_path().
+function prepend_path() {
+    PATH=${PATH//":$1:"/:}          # Delete (potentially multiple) from middle.
+    PATH=${PATH/#"$1:"/}            # Delete from start.
+    PATH=${PATH/%":$1"/}            # Delete from end.
+    PATH="$1${PATH:+:$PATH}$1"      # Actually prepend (or if PATH is empty, just set).
+}
+
+# Create temp scratch dir
+function scratch() {
+    local SCRATCH=$(mktemp -d)
+    echo 'Spawing subshell in scratch directory:'
+    echo "  $SCRATCH"
+    (cd $SCRATCH; zsh)
+    echo "Removing scratch directory"
+    rm -rf "$SCRATCH"
+}
+
+#
+# Paths
+#
+
+append_path $HOME/.local/bin
 
 #
 # Start up programs
