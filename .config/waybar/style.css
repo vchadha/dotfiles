@@ -1,7 +1,7 @@
 * {
     border:         none;
     border-radius:  0;
-    font-family:    Roboto, Helvetica, Arial, sans-serif;
+    font-family:    Symbols Nerd Font, Inconsolata for Powerline;
     font-size:      14px;
     box-shadow:     none;
     text-shadow:    none;
@@ -9,8 +9,7 @@
 }
 
 window {
-    background: rgba( 31, 31, 31, 0.00 );
-    color:      #e5e5e5;
+    background: rgba( 0, 0, 0, 0.00 );
 }
 
 #workspaces button {
@@ -28,7 +27,7 @@ window {
 }
 
 #workspaces button.urgent {
-    background-color: #1b6864;
+    color: #57758e;
 }
 
 #clock,
@@ -38,20 +37,12 @@ window {
 #idle_inhibitor,
 #custom-media {
     min-width:  25px;
-    color:      #ffffff;
-    margin:     0px 8px 0px 6px;
+    margin:     0px 6px 0px 6px;
+    color:      #191919;
 }
 
 #clock {
-    margin:     0px 4px 0px 4px;
+    margin:     0px 8px 0px 0px;
     min-width:  140px;
-}
-
-#battery.charging {
-    color: #43ce1c;
-}
-
-#battery.critical {
-    color: #ce1e0e;
 }
 
