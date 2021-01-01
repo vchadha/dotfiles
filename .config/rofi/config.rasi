@@ -1,8 +1,24 @@
 configuration {
-    modi:           "window,drun,calc,ssh";
-    show-icons:     true;
-    icon-theme:     "Paper";
-    sidebar-mode:   false;
-    display-drun:   "";
-    theme:          "theme_solarized_dark.rasi";
+	modi:                   "drun";
+	display-drun:           ""; 
+    drun-display-format:    "{icon}  {name}";
+    
+    width:                  800;
+	lines:                  7;
+    columns:                1;
+    font:                   "Symbols Nerd Font, Inconsolata for Powerline 16";
+	bw:                     0;
+	padding:                0;
+	
+    show-icons:             true;
+	icon-theme:             "candy-icons";
+	
+	sidebar-mode:           false;
+	matching:               "fuzzy";
+	separator-style:        "none";
+	hide-scrollbar:         true;
+    fixed-num-lines:        true;
+    disable-history:        true;
+
+    theme:                  "moon.rasi";
 }

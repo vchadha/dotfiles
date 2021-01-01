@@ -1,0 +1,59 @@
+/********************************************
+ * ROFI Theme
+ * User: vchadha
+ *******************************************/
+
+/********************************************
+ *               GLOBAL
+ *******************************************/
+* {
+    background-color: transparent;
+	text-color: #D8E2EC;
+	spacing: 0;
+}
+
+/********************************************
+ *                WINDOW
+ *******************************************/
+window {
+    background-color: #09131D;
+}
+
+/********************************************
+ *              INPUT_BAR
+ *******************************************/
+inputbar {
+	border: 0 0 1px 0;
+	children: [prompt, entry];
+}
+
+prompt {
+	padding: 16px;
+}
+
+textbox {
+	padding: 8px 16px;
+}
+
+entry {
+	padding: 16px;
+}
+
+/********************************************
+ *               LIST_VIEW
+ *******************************************/
+listview {
+	cycle: false;
+	margin: 0 0 -1px 0;
+	scrollbar: false;
+}
+
+element {
+	padding: 16px;
+}
+
+element selected {
+	background-color: #539AFC;
+	text-color: #09131D;
+}
+
