@@ -1,0 +1,21 @@
+[submodule "zsh-autosuggestions"]
+	path = .zsh/plugins/zsh-autosuggestions
+	url = git@github.com:zsh-users/zsh-autosuggestions.git
+[submodule "vim-devicons"]
+	path = .vim/pack/bundle/opt/vim-devicons
+	url = https://github.com/ryanoasis/vim-devicons
+[submodule "nerdtree-git-plugin"]
+	path = .vim/pack/bundle/opt/nerdtree-git-plugin
+	url = https://github.com/Xuyuanp/nerdtree-git-plugin
+[submodule "nerdtree"]
+	path = .vim/pack/bundle/opt/nerdtree
+	url = https://github.com/preservim/nerdtree
+[submodule "tcomment_vim"]
+	path = .vim/pack/bundle/opt/tcomment_vim
+	url = https://github.com/tomtom/tcomment_vim
+[submodule "goyo.vim"]
+	path = .vim/pack/bundle/opt/goyo.vim
+	url = https://github.com/junegunn/goyo.vim
+[submodule "ultisnips"]
+	path = .vim/pack/bundle/opt/ultisnips
+	url = git@github.com:SirVer/ultisnips.git
