@@ -15,10 +15,11 @@ set $right l
 set $term kitty
 
 # Application launcher
-set $menu dmenu_path | rofi -show drun | xargs swaymsg exec --
+set $menu rofi -show drun
 
-# Paths
+# Script Paths
 set $lock_path ~/.local/bin/scripts/lock.sh
+set $slideshow_path ~/.local/bin/scripts/slideshow.sh
 set $idle_path ~/.local/bin/scripts/idle.sh
 set $power_path ~/.local/bin/scripts/power.sh
 
@@ -27,19 +28,28 @@ set $screenshot grim ~/Pictures/Screenshots/screenshot-$(date +"%Y-%m-%d-%H-%M-%
 set $screenclip slurp | grim -g - ~/Pictures/Screenshots/screenshot-$(date +"%Y-%m-%d-%H-%M-%S").png
 
 # Background
-set $background ~/Pictures/background/Rapture.jpg
+set $background ~/.wallpaper/wall.jpg
 
 ### Output configuration
 # Monitors
+# Laptop
 output eDP-1 resolution 1920x1080 position 0,0
-output HDMI-A-1 position 1920,0
+
+# High res display
+output HDMI-A-1 scale 1.5
+output HDMI-A-1 resolution 3840x2160 position 1920,0
+
+# Clamshell mode
+set $laptop eDP-1
+bindswitch --reload --locked lid:on output $laptop disable
+bindswitch --reload --locked lid:off output $laptop enable
 
 # Default wallpaper
 output * bg $background fill
 
 # Border
 default_border none
-default_floating_border normal
+default_floating_border none
 hide_edge_borders smart
 
 # Gaps
@@ -61,23 +71,17 @@ exec {
 }
 
 # Inhibit idle
-for_window [class="Brave-browser"] inhibit_idle fullscreen
-for_window [class="Steam"] inhibit_idle fullscreen
-for_window [class="zoom"] inhibit_idle fullscreen
+for_window [class="firefox"] inhibit_idle fullscreen
 
 ### Application properties
 # Allow floating
 for_window [app_id="kitty"] floating enbale
 for_window [app_id="org.gnome.Nautilus"] floating enable
-for_window [app_id="telegramdesktop"] floating enable
 for_window [app_id="pavucontrol"] floating enable
 for_window [app_id="blueman-manager"] floating enable
 for_window [app_id="fragments"] floating enable
-for_window [class="zoom"] floating enable
-for_window [class="discord"] floating enable
-for_window [class="Signal"] floating enable
-for_window [class="Slack"] floating enable
-for_window [class="Steam"] floating enable
+for_window [app_id="ghb"] floating enable
+for_window [class="Xsnow"] floating enable
 
 ### Input configuration
 # You can get the names of your inputs by running: swaymsg -t get_inputs
@@ -117,6 +121,9 @@ input "1739:52619:SYNA8004:00_06CB:CD8B_Touchpad" {
 
     # Lock screen
     bindsym $mod+End exec $lock_path
+
+    # Slideshow
+    bindsym $mod+Home exec $slideshow_path
 
     # Power control
     bindsym $mod+Escape exec $power_path
@@ -175,8 +182,6 @@ input "1739:52619:SYNA8004:00_06CB:CD8B_Touchpad" {
     bindsym $mod+6 workspace 6
     bindsym $mod+7 workspace 7
     bindsym $mod+8 workspace 8
-    bindsym $mod+9 workspace 9
-    bindsym $mod+0 workspace 10
     # Move focused container to workspace
     bindsym $mod+Shift+1 move container to workspace 1
     bindsym $mod+Shift+2 move container to workspace 2
@@ -186,21 +191,7 @@ input "1739:52619:SYNA8004:00_06CB:CD8B_Touchpad" {
     bindsym $mod+Shift+6 move container to workspace 6
     bindsym $mod+Shift+7 move container to workspace 7
     bindsym $mod+Shift+8 move container to workspace 8
-    bindsym $mod+Shift+9 move container to workspace 9
-    bindsym $mod+Shift+0 move container to workspace 10
     # Note: workspaces can have any name you want, not just numbers.
-    # We just use 1-10 as the default.
-    # HDMI Output
-    workspace 1 output eDP-1
-    workspace 2 output eDP-1
-    workspace 3 output eDP-1
-    workspace 4 output eDP-1
-    workspace 5 output eDP-1
-    workspace 6 output eDP-1
-    workspace 7 output eDP-1
-    workspace 8 output HDMI-A-1
-    workspace 9 output HDMI-A-1
-    workspace 10 output HDMI-A-1
 #
 # Layout stuff:
 #
