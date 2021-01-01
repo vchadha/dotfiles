@@ -6,6 +6,6 @@
 [[ $- != *i* ]] && return
 
 # Source env and interactive
-source ~/.bash/env
-source ~/.bash/interactive
+source $HOME/.bash/env
+source $HOME/.bash/interactive
 
