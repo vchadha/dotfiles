@@ -1,0 +1,42 @@
+#
+# Functionality
+#
+
+set selection-clipboard clipboard
+
+set selection-notification false
+
+set show-h-scrollbar false
+set show-v-scrollbar false
+
+#
+# Appearance
+#
+set page-padding 8
+
+set default-bg "#3b4252"
+set completion-bg "#3b4252"
+set completion-highligh-bg "#3b4252"
+set notification-bg "#3b4252"
+set statusbar-bg "#3b4252"
+set inputbar-bg "#3b4252"
+set index-bg "#3b4252"
+
+set completion-fg "#D8E2EC"
+set completion-highlight-fg "#D8E2EC"
+set inputbar-fg "#D8E2EC"
+set index-fg "#D8E2EC"
+set tabbar-focus-fg "#D8E2EC"
+
+set highlight-color "#28323A"
+set highlight-active-color "#D8E2EC"
+
+set index-active-fg "#D8E2EC"
+
+set recolor-lightcolor "#3b4252"
+set recolor-darkcolor "#f8f8f2"
+
+set recolor-reverse-video false
+set recolor true
+
+set guioptions none
