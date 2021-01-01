@@ -14,13 +14,13 @@ set show-v-scrollbar false
 #
 set page-padding 8
 
-set default-bg "#3b4252"
-set completion-bg "#3b4252"
-set completion-highligh-bg "#3b4252"
-set notification-bg "#3b4252"
-set statusbar-bg "#3b4252"
-set inputbar-bg "#3b4252"
-set index-bg "#3b4252"
+set default-bg "#3B4252"
+set completion-bg "#3B4252"
+set completion-highligh-bg "#3B4252"
+set notification-bg "#3B4252"
+set statusbar-bg "#3B4252"
+set inputbar-bg "#3B4252"
+set index-bg "#3B4252"
 
 set completion-fg "#D8E2EC"
 set completion-highlight-fg "#D8E2EC"
@@ -33,8 +33,8 @@ set highlight-active-color "#D8E2EC"
 
 set index-active-fg "#D8E2EC"
 
-set recolor-lightcolor "#3b4252"
-set recolor-darkcolor "#f8f8f2"
+set recolor-lightcolor "#3B4252"
+set recolor-darkcolor "#F8F8F2"
 
 set recolor-reverse-video false
 set recolor true

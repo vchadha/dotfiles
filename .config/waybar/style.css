@@ -14,20 +14,20 @@ window {
 
 #workspaces button {
     padding:    0 8px;
-    color:      #d3d3d3;
+    color:      #D3D3D3;
 }
 
 #workspaces button:hover {
-    color:      #afafaf;
+    color:      #AFAFAF;
     background: rgba( 0, 0, 0, 0.00 );
 }
 
 #workspaces button.focused {
-    color: #ffffff;
+    color: #FFFFFF;
 }
 
 #workspaces button.urgent {
-    color: #57758e;
+    color: #57758E;
 }
 
 #clock,
