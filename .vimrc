@@ -71,3 +71,8 @@ set novisualbell
 " Enable Syntax
 "
 syntax enable
+
+"
+" Functions
+"
+
