@@ -30,6 +30,11 @@ set expandtab
 set softtabstop=4
 
 "
+" Text spacing
+"
+set textwidth=75
+
+"
 " Cursor
 "
 
@@ -39,6 +44,11 @@ set cursorline
 
 " Redraw only when needed
 set lazyredraw
+
+"
+" Mouse
+"
+set mouse=a
 
 "
 " Search
