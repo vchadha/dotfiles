@@ -101,9 +101,15 @@ _RPROMPT="\${vcs_info_msg_0_} %F{blue}%~%f"
 # Anonymous function to avoid leaking variables.
 function () {
     local LVL=$SHLVL
-    local SUFFIX='%(!.%F{yellow}%n%f .)%(!.%F{yellow}.%F{red})'$(printf '\u276f%.0s' {1..$LVL})'%f'
+
+    # Check for TMUX
+    if [ "$TERM" = "tmux-256color" ] && [ -n "$TMUX" ]; then
+        local LVL=$(($SHLVL - 1))
+    fi
     
-    PROMPT="%(?..%F{yellow}! %f)%B%F{blue}%1~%f%b $SUFFIX "
+    local SUFFIX='%(!.%F{yellow}%n%f .)%(!.%F{yellow}.%F{red})'$(printf '\u276f%.0s' {1..$LVL})'%f'
+
+    PROMPT="%(?..%F{yellow}!%f)%B%F{blue}%1~%f%b%  $SUFFIX "
     RPROMPT="$_RPROMPT"
 }
 
