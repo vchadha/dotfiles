@@ -1,0 +1,21 @@
+#
+# Global Settings
+#
+
+max-visible=3
+default-timeout=5000
+
+#
+# Style
+#
+
+font=Inconsolate for Powerline 8
+background-color=#2E3440
+text-color=#D8E2EC
+width=300
+height=125
+border-size=2
+border-color=#09131DBF
+border-radius=0
+max-icon-size=32
+
