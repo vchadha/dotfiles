@@ -57,14 +57,6 @@ smart_gaps on
 gaps inner 10
 gaps outer 5
 
-# Toolkit Config
-seat seat0 xcursor_theme "Vimix-cursors"
-exec_always {
-	gsettings set org.gnome.desktop.interface gtk-theme 'Qogir-dark'
-	gsettings set org.gonme.desktop.interface icon-theme 'Paper'
-	gsettings set org.gonme.desktop.interface cursor-theme 'Vimix-cursors'
-}
-
 ### Start up programs
 exec {
     $idle_path
