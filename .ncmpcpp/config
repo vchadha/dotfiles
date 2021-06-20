@@ -9,25 +9,25 @@ mpd_port = 6600
 mpd_connection_timeout = 5
 
 mpd_music_dir = ~/Music
-mpd_crossfade_time = 5
+mpd_crossfade_time = 1
 
 ##### music visualizer #####
 
 visualizer_data_source = /tmp/mpd.fifo
 visualizer_output_name = visualizer_fifo
-visualizer_in_stereo = yes
-visualizer_sync_interval = 30
+visualizer_in_stereo = no
 visualizer_type = spectrum
-visualizer_look = +|
-visualizer_color = blue, cyan, green, yellow, magenta, red
+visualizer_look = "▋▋"
+visualizer_color = white
+visualizer_spectrum_smooth_look = no
 
 #### delays #####
 
-message_delay_time = 5
+message_delay_time = 3
 
 ##### song format #####
 
-song_list_format = {%a - }{%t}|{$8%f$9}$R{$3(%l)$9}
+song_list_format = " %t   $R%a │"
 song_status_format = {{%a |{ "%b"} - }{%t}}|{%f}
 song_library_format = {%n - }{%t}|{%f}
 
@@ -39,22 +39,30 @@ song_columns_list_format = (20)[]{a} (6f)[green]{NE} (50)[white]{t|f:Title} (20)
 
 ##### various settings #####
 
-playlist_display_mode = columns
+playlist_display_mode = classic
+playlist_editor_display_mode = columns
+playlist_shorten_total_times = yes
 
-browser_display_mode = classic
-search_engine_display_mode = classic
-playlist_editor_display_mode = classic
+browser_display_mode = columns
+
+search_engine_display_mode = columns
 
 autocenter_mode = yes
 centered_cursor = yes
+
+mouse_support = yes
+
+follow_now_playing_lyrics = yes
 
 progressbar_look = ━━━
 
 user_interface = classic
 
 header_visibility = no
-statusbar_visibility = yes
-titles_visibility = yes
+statusbar_visibility = no
+titles_visibility = no
+
+display_bitrate = no
 
 locked_screen_width_part = 63
 ask_for_locked_screen_width_part = yes
@@ -74,13 +82,13 @@ volume_color = default
 state_line_color = default
 state_flags_color = default:b
 
-main_window_color = yellow
+main_window_color = blue
 
 color1 = white
-color2 = green
+color2 = blue
 
 progressbar_color = black:b
-progressbar_elapsed_color = green:b
+progressbar_elapsed_color = cyan:b
 
 statusbar_color = default
 statusbar_time_color = default:b
@@ -89,7 +97,7 @@ player_state_color = default:b
 
 alternative_ui_separator_color = black:b
 
-window_border_color = green
+window_border_color = black
 
-active_window_border = red
+active_window_border = blue
 
