@@ -5,7 +5,8 @@ source $HOME/.shell/interactive
 # Aliases
 #
 
-alias ll='ls -alt'
+alias lt='ls -lt'
+alias ll='ls -al'
 alias ....='cd ../..'
 
 #

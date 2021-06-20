@@ -15,6 +15,26 @@ alias config='/usr/bin/git --git-dir=/home/vchadha/.cfg/ --work-tree=/home/vchad
 # Functions
 #
 
+# Look up
+lookup() {
+    find . -name "$1" -type f -exec grep -Hn "$2" {} \;
+}
+
+# Batch look up
+blookup() {
+    find . -name "$1" -type f -exec grep -Hn "$2" {} \+
+}
+
+# Piped batch look up
+pblookup() {
+    find . -name "$1" -type f -print0 | xargs -0 grep -Hn "$2"
+}
+
+# Parallel piped look up
+pplookup() {
+    find . -name "$1" -type f -print0 | xargs -0 -n1 -P8 grep -Hn "$2"
+}
+
 # Update mirror list
 update_mirrors() {
 	curl -s "https://www.archlinux.org/mirrorlist/?country=FR&country=GB&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 -
