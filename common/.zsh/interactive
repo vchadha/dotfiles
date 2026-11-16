@@ -29,3 +29,13 @@ alias ....='cd ../..'
 function subtree() {
     tree -a --prune -P "$@"
 }
+
+#
+# Machine overlays
+#
+
+# zsh-only overlays (completions, `pyenv init - zsh`, ...)
+for __layer in os host local; do
+    [[ -r $HOME/.zsh/$__layer/interactive ]] && source $HOME/.zsh/$__layer/interactive
+done
+unset __layer

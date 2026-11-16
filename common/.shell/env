@@ -1,1 +1,10 @@
 # Set env
+
+# Machine overlays -- same layering as .shell/interactive. Runs for every
+# shell, including non-interactive ones, so overlays must stay silent.
+for __layer in os host local; do
+    if [ -r "$HOME/.shell/$__layer/env" ]; then
+        . "$HOME/.shell/$__layer/env"
+    fi
+done
+unset __layer

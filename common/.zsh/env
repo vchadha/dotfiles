@@ -1,2 +1,9 @@
 # Source shell env
 source $HOME/.shell/env
+
+# zsh-only overlays (e.g. fpath entries, which must exist before compinit
+# runs in .zshrc)
+for __layer in os host local; do
+    [[ -r $HOME/.zsh/$__layer/env ]] && source $HOME/.zsh/$__layer/env
+done
+unset __layer
