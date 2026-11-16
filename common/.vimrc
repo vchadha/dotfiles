@@ -39,7 +39,7 @@ set textwidth=75
 "
 
 " Highlight current line
-set cursorline
+" set cursorline
 
 
 " Redraw only when needed
