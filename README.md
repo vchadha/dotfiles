@@ -1,50 +1,54 @@
 # . dotfiles
 
-System Configuration Files Galore
+System Configuration Files
 
-Managed with [GNU Stow](https://www.gnu.org/software/stow/): each top-level
-folder is a *package* that mirrors `$HOME`, and each machine's *profile*
-lists which packages it gets.
+My shell, editor and desktop config for macOS and Arch. Settings shared by
+every machine live in `common/`, and each machine adds the folders for its OS
+and hardware. `install.sh` symlinks them into `~` with
+[GNU Stow](https://www.gnu.org/software/stow/).
 
 ## Layout
 
-| Package | Goes on | What's in it |
+| Folder | Goes on | Contains |
 |---|---|---|
-| `common/` | every machine | zsh/bash/sh layers, vim + plugins, tmux, gotop |
-| `macos/` | every Mac | Homebrew, language toolchains, Colima, `og`, pbcopy for tmux |
-| `arch/` | every Arch machine | sway, waybar, mako, rofi, gtk, desktop scripts, ssh-agent, wl-copy for tmux |
-| `host-thinkpad/` | the ThinkPad | monitors/touchpad (`sway/host.conf`), kitty, mpd/ncmpcpp, zathura |
-| `host-macbookpro-home/` | the home MacBook Pro | Playdate SDK, nom, Unity |
+| `common/` | every machine | shell, vim, tmux, gotop |
+| `macos/` | every Mac | Homebrew, dev toolchains, Colima |
+| `arch/` | every Arch machine | sway desktop |
+| `host-thinkpad/` | the ThinkPad | monitors, touchpad, kitty, media apps |
+| `host-macbookpro-home/` | the home MacBook Pro | game dev tools |
+| `profiles/` | | which folders each machine gets |
 
-`profiles/<machine>` is a single line, e.g. `common macos host-macbookpro-home`.
+Each folder mirrors `~`, so `common/.vimrc` is installed as `~/.vimrc`. Everything
+is listed in [What's included](#whats-included).
 
 ## Install
 
 1. Install the prerequisites:
    - **macOS**: [Homebrew](https://brew.sh), then `brew install stow`
    - **Arch**: `pacman -S git stow zsh vim tmux`
-2. Clone it anywhere and run the installer with your profile:
+2. Clone it anywhere and install your machine's profile:
 
    ```sh
    git clone https://github.com/vchadha/dotfiles ~/Developer/dotfiles
    cd ~/Developer/dotfiles
-   ./install.sh <profile>        # no argument lists the profiles
+   ./install.sh thinkpad      # or macbookpro-home; --help lists them all
    ```
 
 3. If zsh isn't already your shell: `chsh -s "$(command -v zsh)"`
 4. vim-devicons needs a [Nerd Font](https://www.nerdfonts.com) set in your terminal.
 
-### When files already exist
+### Options
 
-Stow won't overwrite real files. If any of the files it wants to link already
-exist, `install.sh` lists them and **changes nothing**. Then pick one of:
+Stow won't overwrite real files. If any file `install.sh` wants to link already
+exists, it lists the conflicts and changes nothing. Rerun with an option to
+resolve them:
 
-| Command | What happens | Use it when |
+| Command | What it does | Use it when |
 |---|---|---|
-| `./install.sh --backup <profile>` | Moves the existing files to `~/.dotfiles-backup/<timestamp>/`, then links | New machine; the repo should win |
-| `./install.sh --adopt <profile>` | Moves the existing files *into the repo* and links them, so `git diff` shows how the machine differed. Keep hunks with `git add -p`, drop them with `git restore -p` | The machine has edits worth merging |
-
-`--adopt` needs a clean working tree, since git is the undo.
+| `./install.sh <profile>` | Links everything, or lists conflicts and stops | Always start here |
+| `./install.sh --backup <profile>` | Moves existing files to `~/.dotfiles-backup/<timestamp>/`, then links | New machine; the repo should win |
+| `./install.sh --adopt <profile>` | Moves existing files *into the repo*, then links. `git diff` shows how the machine differed. Keep hunks with `git add -p`, drop them with `git restore -p` | The machine has edits worth merging. Needs a clean working tree, since git is the undo |
+| `./install.sh --help` | Prints usage and the list of profiles | |
 
 ## Day to day
 
@@ -64,7 +68,7 @@ update) and prunes links to deleted ones.
 There are three ways a change can bypass git:
 
 - **An app creates a new config file.** It's a real file in `~`, not in the
-  repo. To track it, move it into the right package and re-run `install.sh`:
+  repo. To track it, move it into the right folder and re-run `install.sh`:
 
   ```sh
   mv ~/.config/foo/new.conf common/.config/foo/
@@ -81,7 +85,67 @@ There are three ways a change can bypass git:
     <profile>` then pulls it back into the repo, and `dots diff` shows what
     changed meanwhile.
 
-- **Installers append to your shell config.** See Gotchas below.
+- **Installers append to your shell config.** See [Gotchas](#gotchas).
+
+## What's included
+
+### `common/` (every machine)
+
+- **zsh**: prompt with git branch (yellow when dirty) and command timing,
+  shared history, case-insensitive completion menu. Plugins:
+  [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) and
+  sudo (<kbd>Esc</kbd> <kbd>Esc</kbd> prefixes the line with `sudo`).
+- **bash and sh**: same environment and functions as zsh, via `~/.shell/`.
+- **Functions**:
+  - `dots`: git for this repo
+  - `lookup` (and the `blookup`, `pblookup`, `pplookup` variants): grep files matching a name
+  - `scratch`: shell in a temp dir that's deleted on exit
+  - `subtree` (zsh): pruned `tree`
+  - `append_path`, `prepend_path`
+- **vim**: [NERDTree](https://github.com/preservim/nerdtree) (+
+  [git plugin](https://github.com/Xuyuanp/nerdtree-git-plugin)),
+  [vim-devicons](https://github.com/ryanoasis/vim-devicons),
+  [tcomment](https://github.com/tomtom/tcomment_vim),
+  [goyo](https://github.com/junegunn/goyo.vim).
+- **tmux**: prefix <kbd>Ctrl</kbd>+<kbd>a</kbd>, mouse on, copy to the system
+  clipboard (the OS folder sets which tool).
+- **[gotop](https://github.com/xxxserxxx/gotop)**: config and layout.
+
+### `macos/` (every Mac)
+
+- **Homebrew** environment
+- **Toolchains**, each skipped if not installed: Rust, Lean (elan), Bun, .NET,
+  nvm, pyenv, opam, SDKMAN, VS Code's `code`
+- **[Colima](https://github.com/abiosoft/colima)** as the Docker runtime (`DOCKER_HOST`)
+- **`og`**: open the repo's remote in the browser
+- tmux copies with `pbcopy`. gotop config is linked into
+  `~/Library/Application Support/gotop/`, where macOS gotop looks for it
+
+### `arch/` (every Arch machine)
+
+- **Desktop**: [sway](https://github.com/swaywm/sway),
+  [waybar](https://github.com/Alexays/Waybar) (with a media player module),
+  [mako](https://github.com/emersion/mako) notifications,
+  [rofi](https://github.com/davatorium/rofi) launcher, GTK 3 settings,
+  wallpaper and lock screen images
+- **Scripts** in `~/.local/bin/scripts/`: lock, idle (lock after 5 min, screen off
+  after 10), rofi power menu, slideshow
+- **ssh-agent**, started once and shared by every shell
+- **Functions**: `update_mirrors` (ranks pacman mirrors), `rsteam`
+- tmux copies with `wl-copy`
+
+### `host-thinkpad/`
+
+- **sway `host.conf`**: laptop and 4K monitor layout, lid-close turns off
+  the laptop screen, touchpad tap and natural scroll
+- **[kitty](https://github.com/kovidgoyal/kitty)** terminal
+- **[mpd](https://www.musicpd.org) + [ncmpcpp](https://github.com/ncmpcpp/ncmpcpp)** music
+- **[zathura](https://github.com/pwmt/zathura)** PDF viewer
+- `bg_changer.sh` (random wallpaper), `battery_status`
+
+### `host-macbookpro-home/`
+
+- Playdate SDK, nom, Unity CLI
 
 ## Machine-specific settings
 
@@ -100,91 +164,31 @@ Shell config loads in layers, most general first: `common`, then
   ```
 
 The same idea applies outside the shell. tmux sources `~/.tmux.clipboard.conf`
-from the OS package, and sway includes `~/.config/sway/host.conf` from the host
-package. **Every sway machine needs a `host.conf`.**
+from the OS folder, and sway includes `~/.config/sway/host.conf` from the host
+folder. **Every sway machine needs a `host.conf`.**
 
 ## Adding a machine
 
+A profile is a file in `profiles/` named after the machine, listing the folders
+it gets on one line:
+
+```sh
+$ cat profiles/macbookpro-home
+common macos host-macbookpro-home
+```
+
 - **Another Mac or Arch box:** add `profiles/<name>` (e.g. `common macos`). Add a
-  `host-<name>/` package only if it needs something the others don't.
-- **A new OS (e.g. Debian):** add a `<os>/` package that provides
+  `host-<name>/` folder only if it needs something the others don't.
+- **A new OS (e.g. Debian):** add a `<os>/` folder that provides
   `.shell/os/{env,interactive}` and `.tmux.clipboard.conf`. If it's headless,
-  that's the time to split sway out of `arch/` into its own package.
+  that's the time to split sway out of `arch/` into its own folder.
+
+Either way, add it to [What's included](#whats-included).
 
 ## Gotchas
 
 - **Installers that append to `~/.zshrc` (nvm, bun, opam, …)** are now editing
   `common/.zshrc` in this repo through the symlink. It shows up in `git status`.
-  Move the lines into `macos/`, the host package, or `local/`.
-- **Two packages can't own the same file.** That's what stops `macos` and
+  Move the lines into `macos/`, the host folder, or `local/`.
+- **Two folders can't own the same file.** That's what stops `macos` and
   `arch` from being installed together.
-
----
-
-### dotfiles for my ThinkPad Arch Rice
-
-System setup:
-
-+ **OS**: Arch Linux
-+ **DSP** [wayland](https://github.com/wayland-project/wayland)
-+ **WM**: [sway](https://github.com/swaywm/sway)
-+ **Taskbar**: [waybar](https://github.com/Alexays/Waybar)
-+ **Shell**: [zsh](https://wiki.archlinux.org/index.php/Zsh)
-+ **Terminal**: [kitty](https://github.com/kovidgoyal/kitty/)
-+ **Editor**: [vim](https://github.com/vim/vim)
-+ **File Manager**: [nautilus](https://github.com/GNOME/nautilus)
-+ **Launcher**: [rofi](https://github.com/davatorium/rofi/)
-+ **Browser**: Firefox
-
-## Preview
-
-### Terminals
-![alt text][terminals]
-
-### Firfox with Tabliss
-![alt text][firefox]
-
-### Applications
-![alt text][applications]
-
-* [Zathura](https://github.com/pwmt/zathura)
-* [ncmpcpp](https://github.com/ncmpcpp/ncmpcpp)
-* Spotify
-
-### Nautilus File Explorer
-![alt text][file_explorer]
-
-### Rofi Launcher
-![alt text][launcher]
-
-### Rofi Power Script
-![alt text][power_script]
-
-### Process Managers
-![alt text][processes]
-
-* [gotop](https://github.com/xxxserxxx/gotop)
-* [htop](https://github.com/htop-dev/htop/)
-* Special Appearance
-    * [buddhasay](https://github.com/luisonthekeyboard/buddhasay)
-
-### VSCode with Tokyo City Theme
-![alt text][vscode]
-
-### Happy Holidays All!
-![alt text][xsnow]
-
-* [xsnow](https://sourceforge.net/projects/xsnow/) mildly working on wayland
-
-## Credits
-- Inspired by and stolen from many creative and amazing people whose names will one day be listed here
-
-[terminals]: https://i.imgur.com/kKKcTOy.png "Terminals"
-[applications]: https://i.imgur.com/zhag6dt.png "Applications"
-[file_explorer]: https://i.imgur.com/up3KT5l.png "File Explorer"
-[launcher]: https://i.imgur.com/59z8Wqb.png "Application Launcher"
-[power_script]: https://i.imgur.com/wGZPYHL.png "Power Script"
-[xsnow]: https://i.imgur.com/mrZgeH9.png "Happy Holidays!"
-[processes]: https://i.imgur.com/Oze3wuX.png "Process Managers"
-[vscode]: https://i.imgur.com/MX26He9.png "VSCode - Tokyo City"
-[firefox]: https://i.imgur.com/JFYXUbR.png "Firefox"
