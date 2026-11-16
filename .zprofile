@@ -1,4 +1,2 @@
-# Source zsh env and login
-source $HOME/.zsh/env
+# Source zsh login (.zshenv already sourced env)
 source $HOME/.zsh/login
-

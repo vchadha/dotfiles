@@ -71,9 +71,6 @@ setopt LIST_PACKED
 # Unmatched patterns are left unchanged
 setopt NO_NOMATCH
 
-# Alow prompt substitution
-setopt PROMPT_SUBST
-
 # History file settings
 HISTFILE=$HOME/.zsh_history
 
@@ -142,9 +139,6 @@ export LANG=en_US.UTF-8
 
 # Preferred editor
 export EDITOR='vim'
-
-# Compilation flags
-export ARCHFLAGS="-arch x86_64"
 
 # Tab completion
 autoload -Uz compinit && compinit
