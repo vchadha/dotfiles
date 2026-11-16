@@ -10,7 +10,7 @@ lists which packages it gets.
 
 | Package | Goes on | What's in it |
 |---|---|---|
-| `common/` | every machine | zsh/bash/sh layers, vim + plugins, tmux, gotop, neofetch |
+| `common/` | every machine | zsh/bash/sh layers, vim + plugins, tmux, gotop |
 | `macos/` | every Mac | Homebrew, language toolchains, Colima, `og`, pbcopy for tmux |
 | `arch/` | every Arch machine | sway, waybar, mako, rofi, gtk, desktop scripts, ssh-agent, wl-copy for tmux |
 | `host-thinkpad/` | the ThinkPad | monitors/touchpad (`sway/host.conf`), kitty, mpd/ncmpcpp, zathura |
