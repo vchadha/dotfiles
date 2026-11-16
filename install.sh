@@ -1,12 +1,6 @@
 #!/bin/sh
 #
-# Symlink one machine's dotfiles into $HOME with GNU Stow.
-#
-#   ./install.sh <profile>            stow; if anything conflicts, list it and change nothing
-#   ./install.sh --backup <profile>   move conflicting files to ~/.dotfiles-backup/<time>/, then stow
-#   ./install.sh --adopt <profile>    pull conflicting files into the repo, then stow -- `git diff`
-#                                     shows how this machine differed; keep hunks with
-#                                     `git add -p`, throw them away with `git restore -p`
+# Symlink one machine's dotfiles into $HOME with GNU Stow. See --help.
 #
 set -eu
 
@@ -18,24 +12,41 @@ die() {
     exit 1
 }
 
-usage() {
-    echo "usage: $0 [--backup | --adopt] <profile>" >&2
-    echo "profiles:" >&2
-    ls profiles | sed 's/^/  /' >&2
+help() {
+    cat <<EOF
+usage: $0 [--backup | --adopt] <profile>
+
+Symlinks the packages listed in profiles/<profile> into \$HOME.
+
+  (no option)  link everything; if any file already exists, list the
+               conflicts and change nothing
+  --backup     move existing files to ~/.dotfiles-backup/<time>/, then link
+  --adopt      move existing files into the repo, then link. 'git diff' shows
+               how this machine differed; keep hunks with 'git add -p', drop
+               them with 'git restore -p'. Needs a clean working tree
+  -h, --help   show this
+
+profiles:
+$(ls profiles | sed 's/^/  /')
+EOF
+}
+
+# Mistakes go to stderr with exit 2; --help asked for it, so stdout and 0
+usage_error() {
+    [ $# -eq 0 ] || echo "install.sh: $*" >&2
+    help >&2
     exit 2
 }
 
 mode=check
 case "${1:-}" in
-    --backup) mode=backup; shift ;;
-    --adopt)  mode=adopt;  shift ;;
-    -*)       usage ;;
+    --backup)  mode=backup; shift ;;
+    --adopt)   mode=adopt;  shift ;;
+    -h|--help) help; exit 0 ;;
+    -*)        usage_error "unknown option: $1" ;;
 esac
-[ $# -eq 1 ] || usage
-if [ ! -f "profiles/$1" ]; then
-    echo "install.sh: no such profile: $1" >&2
-    usage
-fi
+[ $# -eq 1 ] || usage_error
+[ -f "profiles/$1" ] || usage_error "no such profile: $1"
 
 # Whitespace-separated package names; left unquoted below on purpose so the
 # shell splits them.
