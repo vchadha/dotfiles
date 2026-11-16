@@ -1,6 +1,6 @@
 [submodule "zsh-autosuggestions"]
 	path = .zsh/plugins/zsh-autosuggestions
-	url = git@github.com:zsh-users/zsh-autosuggestions.git
+	url = https://github.com/zsh-users/zsh-autosuggestions.git
 [submodule "vim-devicons"]
 	path = .vim/pack/bundle/opt/vim-devicons
 	url = https://github.com/ryanoasis/vim-devicons
@@ -18,4 +18,4 @@
 	url = https://github.com/junegunn/goyo.vim
 [submodule "ultisnips"]
 	path = .vim/pack/bundle/opt/ultisnips
-	url = git@github.com:SirVer/ultisnips.git
+	url = https://github.com/SirVer/ultisnips.git
