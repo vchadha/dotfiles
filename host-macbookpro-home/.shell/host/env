@@ -1,0 +1,2 @@
+# Playdate SDK
+[ -d "$HOME/Developer/PlaydateSDK" ] && export PLAYDATE_SDK_PATH="$HOME/Developer/PlaydateSDK"

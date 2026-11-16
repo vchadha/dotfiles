@@ -1,0 +1,4 @@
+# Spring Boot CLI completion (installed via SDKMAN). Has to be on fpath
+# before compinit runs in .zshrc, which is why it's here and not in
+# interactive.
+fpath+=(~/.sdkman/candidates/springboot/current/shell-completion/zsh)

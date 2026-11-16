@@ -1,0 +1,28 @@
+# Every Mac. Runs for every shell, so keep it silent. Each tool is skipped
+# when it isn't installed, so a Mac without it doesn't error on startup.
+
+# Homebrew first -- Apple Silicon installs to /opt/homebrew, which isn't on
+# the default PATH, and later tools may come from it
+[ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# Rust
+[ -r "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+# Lean (elan)
+[ -d "$HOME/.elan/bin" ] && export PATH="$HOME/.elan/bin:$PATH"
+
+# Bun
+if [ -d "$HOME/.bun" ]; then
+    export BUN_INSTALL="$HOME/.bun"
+    export PATH="$BUN_INSTALL/bin:$PATH"
+fi
+
+# .NET
+[ -d /opt/homebrew/opt/dotnet/libexec ] && export DOTNET_ROOT="/opt/homebrew/opt/dotnet/libexec"
+
+# Colima is the Docker runtime. Gated on ~/.colima so a Mac without it
+# isn't pointed at a socket that doesn't exist.
+[ -d "$HOME/.colima" ] && export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
+
+# SAM CLI
+export SAM_CLI_TELEMETRY=0
