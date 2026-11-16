@@ -59,6 +59,12 @@ function scratch() {
     rm -rf "$SCRATCH"
 }
 
+# git for the dotfiles repo, wherever it's cloned: ~/.zshrc is a stow
+# symlink to <repo>/common/.zshrc, so follow it back
+dots() {
+    git -C "$(dirname "$(realpath "$HOME/.zshrc")")/.." "$@"
+}
+
 #
 # Paths
 #
