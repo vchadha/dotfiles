@@ -58,7 +58,7 @@ for_window [class="firefox"] inhibit_idle fullscreen
 
 ### Application properties
 # Allow floating
-for_window [app_id="kitty"] floating enbale
+for_window [app_id="kitty"] floating enable
 for_window [app_id="org.gnome.Nautilus"] floating enable
 for_window [app_id="pavucontrol"] floating enable
 for_window [app_id="blueman-manager"] floating enable
