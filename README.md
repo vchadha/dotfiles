@@ -46,14 +46,42 @@ exist, `install.sh` lists them and **changes nothing**. Then pick one of:
 
 `--adopt` needs a clean working tree, since git is the undo.
 
-### Updating
+## Day to day
+
+Installed files are symlinks into this repo, so editing `~/.zshrc` *is* editing
+`common/.zshrc`. `dots` runs git in the repo from anywhere:
 
 ```sh
-git pull && ./install.sh <profile>
+dots status
+dots diff
+dots commit -am "..."
+dots pull && ./install.sh <profile>   # bring another machine up to date
 ```
 
-Re-running is safe. It picks up new files (e.g. after a plugin update) and
-prunes links to deleted ones.
+Re-running `install.sh` is safe. It picks up new files (e.g. after a plugin
+update) and prunes links to deleted ones.
+
+There are three ways a change can bypass git:
+
+- **An app creates a new config file.** It's a real file in `~`, not in the
+  repo. To track it, move it into the right package and re-run `install.sh`:
+
+  ```sh
+  mv ~/.config/foo/new.conf common/.config/foo/
+  ./install.sh <profile>
+  ```
+
+- **A program replaces a symlink with a regular file.** This happens with
+  programs that save by writing a new file and renaming it over the old one.
+  From then on, edits to that file stop reaching the repo.
+  - vim (`'backupcopy'` defaults to `auto`) and macOS `sed -i` both leave
+    links intact.
+  - **To catch it,** re-run `./install.sh <profile>`. A link that became a real
+    file shows up as a conflict, and nothing changes. `./install.sh --adopt
+    <profile>` then pulls it back into the repo, and `dots diff` shows what
+    changed meanwhile.
+
+- **Installers append to your shell config.** See Gotchas below.
 
 ## Machine-specific settings
 
