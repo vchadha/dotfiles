@@ -16,6 +16,3 @@
 [submodule "goyo.vim"]
 	path = .vim/pack/bundle/opt/goyo.vim
 	url = https://github.com/junegunn/goyo.vim
-[submodule "ultisnips"]
-	path = .vim/pack/bundle/opt/ultisnips
-	url = https://github.com/SirVer/ultisnips.git
