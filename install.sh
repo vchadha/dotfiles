@@ -111,36 +111,58 @@ backup)
         mv "$HOME/$1" "$backup/$1"
         echo "backed up ~/$1 -> $backup/$1"
     }
-    for pkg in $packages; do
-        (cd "$pkg" && find . \( -name .git -o -name .gitignore -o -name .gitmodules -o -name .DS_Store \) -prune \
-            -o \( -type f -o -type l \) -print) |
-        while IFS= read -r f; do
-            f=${f#./}
-            # A file or a link where the package has a folder blocks
-            # everything under it, so back up that one item instead. Such a
-            # link is often an old Stow link into this repo, and looking
-            # inside it would "back up" the repo's own files.
-            blocker=
-            dir=$(dirname "$f")
-            while [ "$dir" != . ]; do
-                if [ -L "$HOME/$dir" ] || { [ -e "$HOME/$dir" ] && [ ! -d "$HOME/$dir" ]; }; then
-                    blocker=$dir
+    # Plan every move before making any, so a problem stops the run with the
+    # home untouched. Prints "move <path>" or "foreign <path>" per line.
+    plan_backup() {
+        for pkg in $packages; do
+            (cd "$pkg" && find . \( -name .git -o -name .gitignore -o -name .gitmodules -o -name .DS_Store \) -prune \
+                -o \( -type f -o -type l \) -print) |
+            while IFS= read -r f; do
+                f=${f#./}
+                # A file or a link where the package has a folder blocks
+                # everything under it, so back up that one item instead.
+                blocker=
+                dir=$f
+                while case $dir in */*) true ;; *) false ;; esac; do
+                    dir=${dir%/*}
+                    if [ -L "$HOME/$dir" ] || { [ -e "$HOME/$dir" ] && [ ! -d "$HOME/$dir" ]; }; then
+                        blocker=$dir
+                    fi
+                done
+                if [ -n "$blocker" ]; then
+                    # A link into this repo is an old Stow link: move the link,
+                    # never the repo files behind it. A link anywhere else is the
+                    # user's own (a synced ~/.config, say) and isn't ours to move.
+                    if [ -L "$HOME/$blocker" ]; then
+                        case $(realpath "$HOME/$blocker") in
+                            "$DOTFILES"/*) echo "move $blocker" ;;
+                            *) echo "foreign $blocker" ;;
+                        esac
+                    else
+                        echo "move $blocker"
+                    fi
+                    continue
                 fi
-                dir=$(dirname "$dir")
+                # Re-running install: the target is already our symlink, keep it
+                target="$HOME/$f"
+                if [ -L "$target" ] && [ "$(realpath "$target")" = "$(realpath "$pkg/$f")" ]; then
+                    continue
+                fi
+                if [ -e "$target" ] || [ -L "$target" ]; then
+                    echo "move $f"
+                fi
             done
-            if [ -n "$blocker" ]; then
-                move_to_backup "$blocker"
-                continue
-            fi
-            # Re-running install: the target is already our symlink, keep it
-            target="$HOME/$f"
-            if [ -L "$target" ] && [ "$(realpath "$target")" = "$(realpath "$pkg/$f")" ]; then
-                continue
-            fi
-            if [ -e "$target" ] || [ -L "$target" ]; then
-                move_to_backup "$f"
-            fi
         done
+    }
+    plan=$(plan_backup | sort -u)
+    foreign=$(printf '%s\n' "$plan" | sed -n 's|^foreign |  ~/|p')
+    if [ -n "$foreign" ]; then
+        die "nothing changed. These link to folders outside the repo, and Stow can't link files into them:
+$foreign
+Replace each with a real folder, then rerun"
+    fi
+    printf '%s\n' "$plan" | sed -n 's/^move //p' | while IFS= read -r f; do
+        move_to_backup "$f"
     done
     run_stow $packages || die "stow failed after the backup (see above); your old files are in $backup"
     ;;

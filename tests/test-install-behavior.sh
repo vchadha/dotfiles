@@ -76,6 +76,16 @@ expect backup_never_moves_repo_files_through_an_old_folder_link \
     '[ $code -eq 0 ] && [ -z "$(git -C "$repo" status --short)" ] && links_to_repo .zsh/env common/.zsh/env'
 reset_repo
 
+# A folder the user linked elsewhere themselves, e.g. a synced ~/.config
+new_home
+echo mine > "$home/.zshrc"
+mkdir -p "$tmp/sync/someapp"
+ln -s "$tmp/sync" "$home/.config"
+run_install --backup "$profile"
+expect backup_leaves_a_users_own_folder_link_alone \
+    '[ $code -eq 1 ] && err_has "~/.config" && [ -L "$home/.config" ] && [ -d "$home/.config/someapp" ] &&
+     [ "$(cat "$home/.zshrc")" = mine ] && [ "$(backups)" -eq 0 ]'
+
 new_home
 echo finder > "$home/.DS_Store"
 run_install --backup "$profile"
