@@ -76,6 +76,20 @@ expect backup_never_moves_repo_files_through_an_old_folder_link \
     '[ $code -eq 0 ] && [ -z "$(git -C "$repo" status --short)" ] && links_to_repo .zsh/env common/.zsh/env'
 reset_repo
 
+# Left behind by a clone that's since been moved or deleted
+new_home
+ln -s /old/clone/common/.zsh "$home/.zsh"
+run_install --backup "$profile"
+expect backup_moves_a_dangling_link_where_the_repo_has_a_folder \
+    '[ $code -eq 0 ] && [ ! -s "$tmp/err" ] && links_to_repo .zsh/env common/.zsh/env'
+
+new_home
+echo mine > "$tmp/elsewhere"
+ln -s "$tmp/elsewhere" "$home/.zsh"
+run_install --backup "$profile"
+expect backup_moves_a_link_to_a_file_where_the_repo_has_a_folder \
+    '[ $code -eq 0 ] && links_to_repo .zsh/env common/.zsh/env && [ "$(cat "$tmp/elsewhere")" = mine ]'
+
 # A folder the user linked elsewhere themselves, e.g. a synced ~/.config
 new_home
 echo mine > "$home/.zshrc"

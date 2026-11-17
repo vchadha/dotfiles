@@ -71,7 +71,7 @@ expect "found shell configs to check (got $checked)" '[ $checked -gt 20 ]'
 
 # PATH changes in an interactive file never reach scripts or `ssh host cmd`
 grep -E '(^|/)(\.zshrc|\.bashrc|\.(shell|zsh)/(.+/)?interactive)$' "$tmp/files" | cut -d" " -f2- |
-    while IFS= read -r path; do grep -nHE 'append_path|prepend_path|(^|[^A-Z_])PATH=' "$path"; done > "$tmp/out"
+    while IFS= read -r path; do grep -nHE 'append_path|prepend_path|(^|[^A-Z_])PATH=|(^|[^A-Za-z_])path\+?=\(' "$path"; done > "$tmp/out"
 expect "PATH is only changed in env files" '[ ! -s "$tmp/out" ]'
 
 # Waybar reads JSON with // comments, which Python's json doesn't take
@@ -132,7 +132,7 @@ for secret in \
     common/.pypirc common/.env common/.env.local host-thinkpad/server.pem \
     common/.zsh_history common/.shell/local/env common/.zsh/local/env \
     common/.claude/.credentials.json common/.claude/projects/x.jsonl \
-    common/.claude/settings.local.json
+    common/.claude/settings.local.json common/.claude.json common/.claude.json.backup
 do
     expect "gitignore catches $secret" 'git check-ignore -q "$secret"'
 done

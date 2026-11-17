@@ -14,10 +14,11 @@
 **/.ssh/*
 !**/.ssh/config
 
-# Claude Code: transcripts, memory, and on Linux the login token. Only the
-# instructions file is safe to track.
+# Claude Code: transcripts, memory, account details, and on Linux the login
+# token. Only the instructions file is safe to track.
 **/.claude/*
 !**/.claude/CLAUDE.md
+.claude.json*
 
 # GPG and pass
 **/.gnupg/

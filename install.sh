@@ -131,10 +131,12 @@ backup)
                     fi
                 done
                 if [ -n "$blocker" ]; then
-                    # A link into this repo is an old Stow link: move the link,
-                    # never the repo files behind it. A link anywhere else is the
-                    # user's own (a synced ~/.config, say) and isn't ours to move.
-                    if [ -L "$HOME/$blocker" ]; then
+                    # Only a link to a real folder outside this repo (a synced
+                    # ~/.config, say) is the user's own and not ours to move.
+                    # Everything else goes: a file, a link to a file, a dead
+                    # link, or an old Stow link into this repo (moving the
+                    # link, never the repo files behind it).
+                    if [ -L "$HOME/$blocker" ] && [ -d "$HOME/$blocker" ]; then
                         case $(realpath "$HOME/$blocker") in
                             "$DOTFILES"/*) echo "move $blocker" ;;
                             *) echo "foreign $blocker" ;;

@@ -70,8 +70,7 @@ for both `./install.sh` and `dots install`.
 
 ### Uninstall
 
-From the repo, remove the links, then copy back a backup if you made one (the
-earliest backup is the machine as it was before the first install):
+From the repo, remove the links, then copy back a backup if you made one:
 
 ```sh
 stow -D $(cat profiles/<profile>)
