@@ -16,7 +16,7 @@ set page-padding 8
 
 set default-bg "#3B4252"
 set completion-bg "#3B4252"
-set completion-highligh-bg "#3B4252"
+set completion-highlight-bg "#3B4252"
 set notification-bg "#3B4252"
 set statusbar-bg "#3B4252"
 set inputbar-bg "#3B4252"

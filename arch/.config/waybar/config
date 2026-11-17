@@ -65,8 +65,8 @@
     "idle_inhibitor": {
         "format": "{icon}",
         "format-icons": {
-            "activated": "",
-            "deactivated": "﯈"
+            "activated": "󰅶",
+            "deactivated": "󰛊"
         },
         "tooltip": false
     },
@@ -74,11 +74,11 @@
     // Volume
     "pulseaudio": {
         "format": "{icon}  {format_source}",
-        "format-bluetooth": "  {format_source}",
+        "format-bluetooth": "󰂯  {format_source}",
         "format-bluetooth-muted": "  {format_source}",
         "format-muted": "  {format_source}",
-        "format-source": "",
-        "format-source-muted": "",
+        "format-source": "󰍬",
+        "format-source-muted": "󰍭",
         "format-icons": {
             "default": ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
         },
@@ -87,8 +87,8 @@
     
     // Wifi
     "network": {
-        "format-wifi": "直",
-        "format-disconnected": "睊",
+        "format-wifi": "󰖩",
+        "format-disconnected": "󰖪",
         "tooltip": false
     },
 
@@ -99,8 +99,8 @@
             "critical": 15
         },
         "format": "{icon} {capacity}%",
-        "format-charging": " {capacity}%",
-        "format-icons": ["", "", "", "", "", "", "", "", "", "", ""],
+        "format-charging": "󰂄 {capacity}%",
+        "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
         "tooltip": false
     },
 
