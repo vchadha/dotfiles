@@ -37,7 +37,10 @@ set softtabstop=4
 " Wrap at 75 columns as you type, but only in prose, not code
 set textwidth=75
 set formatoptions-=t
-autocmd FileType markdown,text,gitcommit setlocal formatoptions+=t
+augroup prose_wrap
+    autocmd!
+    autocmd FileType markdown,text,gitcommit setlocal formatoptions+=t
+augroup END
 
 "
 " Cursor

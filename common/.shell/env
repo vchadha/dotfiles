@@ -6,21 +6,28 @@
 export LANG=en_US.UTF-8
 export EDITOR=vim
 
-# Add a folder to the end or front of PATH, unless it's already there (a
-# shell started from another one runs this file again). PATH entries belong
-# in env files, not interactive ones, so scripts, cron and `ssh host cmd` see
-# them too.
+# PATH entries belong in env files, not interactive ones, so scripts, cron
+# and `ssh host cmd` see them too. A shell started from another one runs this
+# file again, so neither helper adds a folder twice.
+
+# Add a folder to the end of PATH, unless it's already there
 append_path() {
     case ":$PATH:" in
         *":$1:"*) ;;
         *) PATH="${PATH:+$PATH:}$1" ;;
     esac
 }
+
+# Put a folder first in PATH, moving it if it's already there
 prepend_path() {
-    case ":$PATH:" in
-        *":$1:"*) ;;
-        *) PATH="$1${PATH:+:$PATH}" ;;
-    esac
+    __path=":$PATH:"
+    while case $__path in *":$1:"*) true ;; *) false ;; esac; do
+        __path="${__path%%:"$1":*}:${__path#*:"$1":}"
+    done
+    __path=${__path#:}
+    __path=${__path%:}
+    PATH="$1${__path:+:$__path}"
+    unset __path
 }
 
 # Where uv (Pythons, `uv tool install`) and pip --user put commands. At the

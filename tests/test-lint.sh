@@ -43,7 +43,8 @@ sh_checker=$(command -v dash || echo /bin/sh)
 
 syntax_ok() { # <dialect> <file>
     case $1 in
-        sh)     "$sh_checker" -n "$2" ;;
+        # dash for strictness, /bin/sh because it's what actually runs them
+        sh)     "$sh_checker" -n "$2" && /bin/sh -n "$2" ;;
         bash)   bash -n "$2" ;;
         zsh)    zsh -n "$2" ;;
         python) python3 -I -c 'import ast, sys; ast.parse(open(sys.argv[1]).read(), sys.argv[1])' "$2" ;;
@@ -67,6 +68,11 @@ while read -r mode path; do
     done
 done < "$tmp/files"
 expect "found shell configs to check (got $checked)" '[ $checked -gt 20 ]'
+
+# PATH changes in an interactive file never reach scripts or `ssh host cmd`
+grep -E '(^|/)(\.zshrc|\.bashrc|\.(shell|zsh)/(.+/)?interactive)$' "$tmp/files" | cut -d" " -f2- |
+    while IFS= read -r path; do grep -nHE 'append_path|prepend_path|(^|[^A-Z_])PATH=' "$path"; done > "$tmp/out"
+expect "PATH is only changed in env files" '[ ! -s "$tmp/out" ]'
 
 # Waybar reads JSON with // comments, which Python's json doesn't take
 expect "waybar config parses" 'python3 -I - arch/.config/waybar/config > "$tmp/out" 2> "$tmp/err" <<"PY"

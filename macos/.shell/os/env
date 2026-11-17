@@ -9,12 +9,12 @@
 [ -r "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 # Lean (elan)
-[ -d "$HOME/.elan/bin" ] && export PATH="$HOME/.elan/bin:$PATH"
+[ -d "$HOME/.elan/bin" ] && prepend_path "$HOME/.elan/bin"
 
 # Bun
 if [ -d "$HOME/.bun" ]; then
     export BUN_INSTALL="$HOME/.bun"
-    export PATH="$BUN_INSTALL/bin:$PATH"
+    prepend_path "$BUN_INSTALL/bin"
 fi
 
 # .NET, and tools installed with `dotnet tool install -g`

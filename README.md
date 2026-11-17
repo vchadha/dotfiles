@@ -70,11 +70,11 @@ for both `./install.sh` and `dots install`.
 
 ### Uninstall
 
-From the repo, remove the links (list the packages from your profile), then
-copy back a backup if you made one:
+From the repo, remove the links, then copy back a backup if you made one (the
+earliest backup is the machine as it was before the first install):
 
 ```sh
-stow -D common macos
+stow -D $(cat profiles/<profile>)
 cp -R ~/.dotfiles-backup/<timestamp>/. ~
 ```
 
@@ -85,7 +85,8 @@ Shell config loads in layers, most general first: `common`, then `os/`,
 
 - **`os/`** comes from `macos/` or `arch/`: things true of every machine of that kind.
 - **`host/`** comes from `host-<machine>/`: things only that machine has.
-- **`local/`** is **never tracked**: secrets and one-off tweaks.
+- **`local/`** is **never tracked**: secrets and one-off tweaks. Put a token
+  in `local/env` if scripts need it, `local/interactive` if only your terminal does.
 
 Each layer has two files in `~/.shell/<layer>/` (zsh-only bits go in
 `~/.zsh/<layer>/`):
@@ -95,7 +96,7 @@ Each layer has two files in `~/.shell/<layer>/` (zsh-only bits go in
 - **`interactive`**: aliases, functions, completions, slow tool setup.
   Terminals only.
 
-For example, to use a different editor on one machine, put this in
+For example, the editor is vim; to use a different one on one machine, put this in
 `~/.shell/local/env`:
 
 ```sh
@@ -118,7 +119,8 @@ dots pull && dots install <profile>   # get upstream changes
 Re-running `dots install` is safe. It links new files (e.g. after a plugin
 update) and removes links to files deleted from the repo. If you delete a
 whole folder from a package, though, its links stay behind in `~`, broken.
-Delete those by hand; `find -L ~/.config -type l` lists broken links.
+Delete those by hand; `find -L <folder> -type l` lists the broken links under
+a folder, e.g. `~/.vim/pack`.
 
 If a change affects something the [wiki](https://github.com/vchadha/dotfiles/wiki)
 describes, update it too.
@@ -224,7 +226,7 @@ tests/run.sh
 ```
 
 Runs every suite, each against throwaway home folders, so your own is never
-touched. Takes a few seconds; run it before pushing. Works from any folder,
+touched. Takes about 10 seconds; run it before pushing. Works from any folder,
 and each suite also runs on its own, e.g. `tests/test-lint.sh`.
 
 Needs `git`, `stow`, `zsh` and `python3`. `dash`, `vim` and `tmux` are

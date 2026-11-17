@@ -8,11 +8,15 @@
 . "$(dirname "$0")/lib.sh"
 copy_repo
 
-case $(uname -s) in
-    Darwin) os_package=macos ;;
-    Linux)  os_package=arch ;;
-    *)      echo "$(basename "$0"): no package for $(uname -s), skipping"; exit 0 ;;
-esac
+# A new OS fails here rather than quietly testing another OS's profiles
+if [ "$(uname -s)" = Darwin ]; then
+    os_package=macos
+elif [ -f /etc/arch-release ]; then
+    os_package=arch
+else
+    echo "$(basename "$0"): no OS package for this system; add one (README: Adding a machine)" >&2
+    exit 1
+fi
 
 # Resolved now because the shells below start with a bare PATH
 zsh=$(command -v zsh) || { echo "zsh isn't installed" >&2; exit 1; }
@@ -123,9 +127,14 @@ for profile_file in "$repo"/profiles/*; do
     clean_env "$zsh" -i -c 'dots rev-parse --show-toplevel'
     expect "$profile: dots finds the repo" '[ "$(cat "$tmp/out")" = "$(cd "$repo" && pwd -P)" ]'
 
-    clean_env "$zsh" -i -c 'bindkey -lL main; for k in "^[[H" "^[OH" "^[[1~"; do bindkey $k; done'
+    clean_env "$zsh" -c 'prepend_path "$HOME/.local/bin"; echo "probe PATH=$PATH"'
+    expect "$profile: prepend_path moves a folder already on PATH to the front" \
+        '[ "$(line_of "$home/.local/bin")" = 1 ] && no_duplicate_path_entries'
+
+    clean_env "$zsh" -i -c 'bindkey -lL main; for k in "^[[H" "^[OH" "^[[1~" "^[[F" "^[OF" "^[[4~"; do bindkey $k; done'
     expect "$profile: zsh uses emacs keys, even though EDITOR is vim" 'out_has "bindkey -A emacs main"'
     expect "$profile: Home works in and out of tmux" '[ "$(grep -c beginning-of-line "$tmp/out")" -eq 3 ]'
+    expect "$profile: End works in and out of tmux" '[ "$(grep -c end-of-line "$tmp/out")" -eq 3 ]'
 
     # The branch in the right prompt: green when clean, yellow with changes
     esc=$(printf '\033')
