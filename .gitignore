@@ -1,10 +1,14 @@
-# Every new file is ignored, so nothing gets committed by accident: an app
-# folder moved into a package can carry tokens, history or account details.
-# Files git already tracks aren't affected. Add a new one on purpose, one
-# file at a time (-f skips this rule, so never point it at a folder):
+# New files are ignored by default, so nothing gets committed by accident:
+# an app folder moved into a package can carry tokens, history or account
+# details. Files git already tracks aren't affected. Add a new one on
+# purpose, one file at a time (-f skips these rules, so never use it on a
+# folder):
 #
 #   dots add -f common/.config/foo/foo.conf
+
+# Ignore every file...
 *
-# Folders aren't ignored, only files: otherwise git refuses even `git add`
-# on a tracked file inside one
+
+# ...but not folders: git refuses even `git add` on a tracked file inside an
+# ignored folder
 !*/
