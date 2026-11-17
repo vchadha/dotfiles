@@ -131,6 +131,10 @@ for profile_file in "$repo"/profiles/*; do
     expect "$profile: prepend_path moves a folder already on PATH to the front" \
         '[ "$(line_of "$home/.local/bin")" = 1 ] && no_duplicate_path_entries'
 
+    clean_env "$zsh" -c 'before=$PATH; append_path ""; a=$?; prepend_path ""; p=$?; [ $a -ne 0 ] && [ $p -ne 0 ] && [ "$PATH" = "$before" ]'
+    expect "$profile: an empty folder never puts the current folder on PATH" \
+        '[ $code -eq 0 ] && err_has "append_path: no folder given" && err_has "prepend_path: no folder given"'
+
     clean_env "$zsh" -i -c 'bindkey -lL main; for k in "^[[H" "^[OH" "^[[1~" "^[[F" "^[OF" "^[[4~"; do bindkey $k; done'
     expect "$profile: zsh uses emacs keys, even though EDITOR is vim" 'out_has "bindkey -A emacs main"'
     expect "$profile: Home works in and out of tmux" '[ "$(grep -c beginning-of-line "$tmp/out")" -eq 3 ]'

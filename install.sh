@@ -89,9 +89,10 @@ command -v stow > /dev/null || die "GNU Stow isn't installed (macOS: brew instal
 # install` picking up pinned updates from other machines.
 git submodule update --init
 
-# Flags passed explicitly rather than trusting .stowrc: the target has to be
-# $HOME wherever the repo lives, and without --no-folding a missing
-# directory like ~/.config would become one big symlink into this repo.
+# Same flags as .stowrc (Stow reads it too; these win on conflict). Repeated
+# here because .stowrc can't hold comments: the target has to be $HOME
+# wherever the repo lives, and without --no-folding a missing directory
+# like ~/.config would become one big symlink into this repo.
 # --restow makes re-runs prune links to files that have since been deleted
 # (e.g. after a submodule update) -- but only inside folders the package
 # still has; Stow never visits a folder that's gone, so its links are left.

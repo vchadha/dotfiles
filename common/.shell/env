@@ -10,8 +10,14 @@ export EDITOR=vim
 # and `ssh host cmd` see them too. A shell started from another one runs this
 # file again, so neither helper adds a folder twice.
 
+# An empty entry in PATH means the current folder, so refuse to add one
+__require_folder() {
+    [ -n "$2" ] || { echo "$1: no folder given" >&2; return 1; }
+}
+
 # Add a folder to the end of PATH, unless it's already there
 append_path() {
+    __require_folder append_path "$1" || return
     case ":$PATH:" in
         *":$1:"*) ;;
         *) PATH="${PATH:+$PATH:}$1" ;;
@@ -20,6 +26,7 @@ append_path() {
 
 # Put a folder first in PATH, moving it if it's already there
 prepend_path() {
+    __require_folder prepend_path "$1" || return
     __path=":$PATH:"
     while case $__path in *":$1:"*) true ;; *) false ;; esac; do
         __path="${__path%%:"$1":*}:${__path#*:"$1":}"

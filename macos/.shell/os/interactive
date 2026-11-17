@@ -5,12 +5,10 @@
 # Open the current repo's remote in the browser (default remote: origin)
 og() {
     local remote url
-    git remote -v | grep push
     remote=${1:-origin}
-    echo "Using remote $remote"
     url=$(git config "remote.$remote.url") || { echo "no remote named $remote" >&2; return 1; }
     url=$(echo "$url" | sed "s/git@\(.*\):\(.*\).git/https:\/\/\1\/\2/")
-    echo "Opening $url ..."
+    echo "Opening $url"
     open "$url"
 }
 

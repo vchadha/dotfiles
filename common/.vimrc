@@ -2,7 +2,6 @@
 " Plugins
 "
 
-" TODO: one day make some of these lazy load
 if &loadplugins
     if has('packages')
         packadd! tcomment_vim
@@ -45,10 +44,6 @@ augroup END
 "
 " Cursor
 "
-
-" Highlight current line
-" set cursorline
-
 
 " Redraw only when needed
 set lazyredraw
