@@ -54,6 +54,10 @@ homebrew_before_system() {
     b=$(line_of /opt/homebrew/bin) u=$(line_of /usr/bin)
     [ -n "$b" ] && [ -n "$u" ] && [ "$b" -lt "$u" ]
 }
+local_bin_after_system() {
+    l=$(line_of "$home/.local/bin") u=$(line_of /usr/bin)
+    [ -n "$l" ] && [ -n "$u" ] && [ "$l" -gt "$u" ]
+}
 # Anything startup printed would land in scp/rsync streams over ssh
 printed_nothing_else() { ! grep -qv '^probe ' "$tmp/out"; }
 
@@ -69,6 +73,9 @@ check_shell() {
         'out_has "^probe EDITOR=vim$" && out_has "^probe LANG=en_US.UTF-8$"'
     expect "$label: local/env overlay loaded" 'out_has "^probe LOCAL=loaded$"'
     expect "$label: no duplicate PATH entries" no_duplicate_path_entries
+    expect "$label: sees ~/.local/bin (uv tools, scripts over ssh)" '[ -n "$(line_of "$home/.local/bin")" ]'
+    expect "$label: ~/.local/bin after /usr/bin, so it can't shadow system commands" \
+        local_bin_after_system
     if [ "$brew_expected" = yes ]; then
         expect "$label: Homebrew before /usr/bin on PATH" homebrew_before_system
     fi

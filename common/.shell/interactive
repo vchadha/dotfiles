@@ -59,12 +59,6 @@ dots() {
 }
 
 #
-# Paths
-#
-
-append_path $HOME/.local/bin
-
-#
 # Machine overlays
 #
 
