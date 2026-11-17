@@ -31,10 +31,19 @@ function subtree() {
 }
 
 #
+# Completions
+#
+
+# uv (Python versions, venvs, tools). Homebrew ships its completion on fpath
+# already, so only generate it where the package didn't -- generating costs
+# a uv run at every shell start.
+(( $+commands[uv] && ! $+functions[_uv] )) && eval "$(uv generate-shell-completion zsh)"
+
+#
 # Machine overlays
 #
 
-# zsh-only overlays (completions, `pyenv init - zsh`, ...)
+# zsh-only overlays (completions, opam and bun setup, ...)
 for __layer in os host local; do
     [[ -r $HOME/.zsh/$__layer/interactive ]] && source $HOME/.zsh/$__layer/interactive
 done

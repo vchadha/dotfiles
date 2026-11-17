@@ -35,7 +35,7 @@ Files in each package are linked to the same path under `~`, so
 
 `install.sh` links config; it doesn't install apps. Config for an app you
 don't have is linked but never read, and shell setup for a missing tool (nvm,
-pyenv, Colima, …) is skipped.
+uv, Colima, …) is skipped.
 
 ## Install
 
@@ -121,6 +121,7 @@ has the details, keybindings included.
   [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions), sudo plugin
 - **bash and sh**: same environment and functions as zsh
 - **Functions**: `dots`, `lookup`, `scratch`, `subtree`, `append_path`, `prepend_path`
+- **[uv](https://docs.astral.sh/uv/)** completion, for Python versions and environments
 - **vim**: [NERDTree](https://github.com/preservim/nerdtree),
   [vim-devicons](https://github.com/ryanoasis/vim-devicons),
   [tcomment](https://github.com/tomtom/tcomment_vim),
@@ -131,7 +132,7 @@ has the details, keybindings included.
 ### `macos/` (every Mac)
 
 - **Homebrew**
-- **Toolchains**: Rust, Lean, Bun, .NET, nvm, pyenv, opam, SDKMAN, VS Code CLI
+- **Toolchains**: Rust, Lean, Bun, .NET, nvm, opam, SDKMAN, VS Code CLI
 - **[Colima](https://github.com/abiosoft/colima)** as the Docker runtime
 - **Functions**: `og`
 
