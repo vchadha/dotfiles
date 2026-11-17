@@ -108,6 +108,9 @@ Move them into `macos/`, the host package, or `local/`.
 
 ## What's included
 
+The [Features](https://github.com/vchadha/dotfiles/wiki/Features) wiki page
+has the details, keybindings included.
+
 ### `common/` (every machine)
 
 - **zsh**: git-aware prompt, shared history, completion,
