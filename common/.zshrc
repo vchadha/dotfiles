@@ -30,7 +30,6 @@ setopt AUTO_PARAM_SLASH
 setopt EXTENDED_HISTORY
 setopt SHARE_HISTORY
 setopt APPEND_HISTORY
-setopt INC_APPEND_HISTORY
 
 # No duplicates in history
 setopt HIST_EXPIRE_DUPS_FIRST
@@ -74,8 +73,10 @@ setopt NO_NOMATCH
 # History file settings
 HISTFILE=$HOME/.zsh_history
 
+# HISTSIZE (in memory) has to be bigger than SAVEHIST (on disk), or the
+# file stops growing at HISTSIZE
 SAVEHIST=5000
-HISTSIZE=2000
+HISTSIZE=6000
 
 #
 # Prompt
@@ -87,19 +88,20 @@ zstyle ':vcs_info:*' enable git
 zstyle ':vcs_info:*' check-for-changes false
 zstyle ':vcs_info:*' use-simple
 
-zstyle ':vcs_info:git+set-message:*' hooks git-dirty
-zstyle ':vcs_info:git*:*' formats '%F{$__GVARS[VCS_COLOR]}[%b%m%c%u]%f'
-zstyle ':vcs_info:git*:*' actionformats '%F{$__GVARS[VCS_COLOR]}[%b|%a%m%c%u]%f'
+zstyle ':vcs_info:git*:*' formats '[%b%m%c%u]'
+zstyle ':vcs_info:git*:*' actionformats '[%b|%a%m%c%u]'
 
-# Right side prompt with timing, git info and full path
-_RPROMPT="\${vcs_info_msg_0_} %F{blue}%~%f"
+# Right side prompt: git branch, coloured by -update-vcs-info, then the full
+# path. The colour goes here, not in the zstyle above: zsh doesn't expand
+# variables inside vcs_info's message, so it always came out black.
+_RPROMPT="%F{\${__GVARS[VCS_COLOR]}}\${vcs_info_msg_0_}%f %F{blue}%~%f"
 
 # Set prompt based on number of nested shells
 # Anonymous function to avoid leaking variables.
 function () {
     local LVL=$SHLVL
 
-    # Check for TMUX
+    # Inside tmux, don't count the tmux pane as a nested shell
     if [ "$TERM" = "tmux-256color" ] && [ -n "$TMUX" ]; then
         local LVL=$(($SHLVL - 1))
     fi
@@ -119,7 +121,6 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#abb2ba"
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 ZSH_AUTOSUGGEST_USE_ASYNC=true
 ZSH_AUTOSUGGEST_HISTORY_IGNORE="cd *"
-ZSH_AUTOSUGGEST_COMPLETION_IGNORE="git *"
 
 source ~/.zsh/plugins/sudo/sudo.plugin.zsh
 
@@ -131,8 +132,18 @@ source ~/.zsh/plugins/sudo/sudo.plugin.zsh
 # Bindings
 #
 
+# Emacs keys (Ctrl+A/E/R...). Without this zsh picks vi keys, because
+# EDITOR is vim.
+bindkey -e
+
 bindkey '^[[A' up-line-or-search # up arrow
 bindkey '^[[B' down-line-or-search # down arrow
+
+# Home and End: terminals send one of these codes for each (tmux sends the
+# last one)
+for key in '^[[H' '^[OH' '^[[1~'; do bindkey $key beginning-of-line; done
+for key in '^[[F' '^[OF' '^[[4~'; do bindkey $key end-of-line; done
+unset key
 
 # Tab completion
 autoload -Uz compinit && compinit
@@ -168,16 +179,13 @@ zstyle ':completion:*' menu select
 #
 autoload -U add-zsh-hook
 
-function +vi-git-dirty() {
-    emulate -L zsh
-    local ref="$vcs_info_msg_0_"
-    
-    if [[ -n "$ref" ]]; then
-        if [[ -n "$(git status --porcelain --ignore-submodules)" ]]; then
-            __GVARS[VCS_COLOR]='yellow'
-        else
-            __GVARS[VCS_COLOR]='green'
-        fi
+# Refresh the git branch, green when clean and yellow with changes
+function -update-vcs-info() {
+    vcs_info
+    if [[ -n $vcs_info_msg_0_ && -n "$(git status --porcelain --ignore-submodules 2> /dev/null)" ]]; then
+        __GVARS[VCS_COLOR]='yellow'
+    else
+        __GVARS[VCS_COLOR]='green'
     fi
 }
 
@@ -238,14 +246,17 @@ function -maybe-show-vcs-info() {
     # Check first word; via:
     # http://tim.vanwerkhoven.org/post/2012/10/28/ZSH/Bash-string-manipulation
     case "$LAST[(w)1]" in
-        cd|cp|git|rm|touch|mv|vim)
-        vcs_info
+        cd|cp|git|dots|rm|touch|mv|vim)
+        -update-vcs-info
         ;;
         *)
         ;;
     esac
 }
 add-zsh-hook precmd -maybe-show-vcs-info
+
+# No command has run before the first prompt, so refresh once now
+-update-vcs-info
 
 # Aliases and others
 source $HOME/.zsh/interactive

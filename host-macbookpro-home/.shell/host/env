@@ -1,2 +1,11 @@
 # Playdate SDK
-[ -d "$HOME/Developer/PlaydateSDK" ] && export PLAYDATE_SDK_PATH="$HOME/Developer/PlaydateSDK"
+if [ -d "$HOME/Developer/PlaydateSDK" ]; then
+    export PLAYDATE_SDK_PATH="$HOME/Developer/PlaydateSDK"
+    append_path "$PLAYDATE_SDK_PATH/bin"
+fi
+
+# nom (RSS reader)
+[ -d "$HOME/Developer/RSS/nom" ] && append_path "$HOME/Developer/RSS/nom"
+
+# Unity CLI
+[ -r "$HOME/.unity/env" ] && . "$HOME/.unity/env"

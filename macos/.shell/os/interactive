@@ -15,16 +15,6 @@ og() {
 }
 
 #
-# Paths
-#
-
-# VS Code's `code` CLI
-append_path "/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
-
-# .NET Core SDK tools
-append_path "$HOME/.dotnet/tools"
-
-#
 # Tool managers
 #
 

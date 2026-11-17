@@ -5,9 +5,6 @@
 # Source bash env
 source $HOME/.bash/env
 
-# Set BASH_ENV as empty
-BASH_ENV=
-
 # Source bash login
 source $HOME/.bash/login
 

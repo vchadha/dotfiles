@@ -6,15 +6,26 @@
 export LANG=en_US.UTF-8
 export EDITOR=vim
 
-# Where uv (Pythons, `uv tool install`) and pip --user put commands. Here so
-# scripts, cron and `ssh host cmd` find them too, not just terminals. Appended,
-# so it adds commands without shadowing Homebrew's or the system's. The case
-# keeps a shell started from another one from adding it twice (zsh dedupes
-# anyway; bash and sh don't).
-case ":$PATH:" in
-    *":$HOME/.local/bin:"*) ;;
-    *) export PATH="$PATH:$HOME/.local/bin" ;;
-esac
+# Add a folder to the end or front of PATH, unless it's already there (a
+# shell started from another one runs this file again). PATH entries belong
+# in env files, not interactive ones, so scripts, cron and `ssh host cmd` see
+# them too.
+append_path() {
+    case ":$PATH:" in
+        *":$1:"*) ;;
+        *) PATH="${PATH:+$PATH:}$1" ;;
+    esac
+}
+prepend_path() {
+    case ":$PATH:" in
+        *":$1:"*) ;;
+        *) PATH="$1${PATH:+:$PATH}" ;;
+    esac
+}
+
+# Where uv (Pythons, `uv tool install`) and pip --user put commands. At the
+# end, so it adds commands without overriding Homebrew's or the system's.
+append_path "$HOME/.local/bin"
 
 # Machine overlays -- same layering as .shell/interactive. Runs for every
 # shell, including non-interactive ones, so overlays must stay silent.

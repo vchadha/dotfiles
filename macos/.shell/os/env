@@ -17,8 +17,12 @@ if [ -d "$HOME/.bun" ]; then
     export PATH="$BUN_INSTALL/bin:$PATH"
 fi
 
-# .NET
+# .NET, and tools installed with `dotnet tool install -g`
 [ -d /opt/homebrew/opt/dotnet/libexec ] && export DOTNET_ROOT="/opt/homebrew/opt/dotnet/libexec"
+[ -d "$HOME/.dotnet/tools" ] && append_path "$HOME/.dotnet/tools"
+
+# VS Code's `code` command
+[ -d "/Applications/Visual Studio Code.app" ] && append_path "/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
 
 # Colima is the Docker runtime. Gated on ~/.colima so a Mac without it
 # isn't pointed at a socket that doesn't exist.

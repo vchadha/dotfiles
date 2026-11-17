@@ -17,8 +17,9 @@ endif
 " Tabs and spaces
 "
 
-" Tabs are 4 spaces
+" Indent with 4 spaces
 set tabstop=4
+set shiftwidth=4
 
 " Auto indent
 set autoindent
@@ -32,7 +33,11 @@ set softtabstop=4
 "
 " Text spacing
 "
+
+" Wrap at 75 columns as you type, but only in prose, not code
 set textwidth=75
+set formatoptions-=t
+autocmd FileType markdown,text,gitcommit setlocal formatoptions+=t
 
 "
 " Cursor
@@ -60,7 +65,7 @@ set incsearch
 " Highlight results
 set hlsearch
 
-" Unhighligh results with \+<space>
+" Unhighlight results with \+<space>
 nnoremap <leader><space> :nohlsearch<CR>
 
 "

@@ -6,6 +6,7 @@
 # clean environment, like a new terminal or an ssh session would.
 #
 . "$(dirname "$0")/lib.sh"
+copy_repo
 
 case $(uname -s) in
     Darwin) os_package=macos ;;
@@ -84,7 +85,7 @@ check_shell() {
     fi
 }
 
-for profile_file in "$REPO"/profiles/*; do
+for profile_file in "$repo"/profiles/*; do
     profile=$(basename "$profile_file")
     case " $(tr -s '[:space:]' ' ' < "$profile_file") " in
         *" $os_package "*) ;;
@@ -92,7 +93,7 @@ for profile_file in "$REPO"/profiles/*; do
     esac
 
     home=$(mktemp -d "$tmp/home.XXXXXX")
-    HOME=$home "$REPO/install.sh" "$profile" > "$tmp/out" 2> "$tmp/err"
+    HOME=$home "$repo/install.sh" "$profile" > "$tmp/out" 2> "$tmp/err"
     code=$?
     expect "$profile: installs" '[ $code -eq 0 ]'
     [ $code -eq 0 ] || continue
@@ -120,7 +121,20 @@ for profile_file in "$REPO"/profiles/*; do
     fi
 
     clean_env "$zsh" -i -c 'dots rev-parse --show-toplevel'
-    expect "$profile: dots finds the repo" '[ "$(cat "$tmp/out")" = "$REPO" ]'
+    expect "$profile: dots finds the repo" '[ "$(cat "$tmp/out")" = "$(cd "$repo" && pwd -P)" ]'
+
+    clean_env "$zsh" -i -c 'bindkey -lL main; for k in "^[[H" "^[OH" "^[[1~"; do bindkey $k; done'
+    expect "$profile: zsh uses emacs keys, even though EDITOR is vim" 'out_has "bindkey -A emacs main"'
+    expect "$profile: Home works in and out of tmux" '[ "$(grep -c beginning-of-line "$tmp/out")" -eq 3 ]'
+
+    # The branch in the right prompt: green when clean, yellow with changes
+    esc=$(printf '\033')
+    (cd "$repo" && clean_env "$zsh" -i -c 'print -P "$RPROMPT"')
+    expect "$profile: prompt shows the branch in green in a clean repo" 'out_has "${esc}\[32m\["'
+    touch "$repo/untracked"
+    (cd "$repo" && clean_env "$zsh" -i -c 'print -P "$RPROMPT"')
+    expect "$profile: prompt shows the branch in yellow with changes" 'out_has "${esc}\[33m\["'
+    rm "$repo/untracked"
 
     clean_env "$zsh" -i -c 'echo "${_comps[dots]-} ${_comps[install.sh]-}"'
     expect "$profile: tab completion registered for dots and install.sh" \
@@ -130,6 +144,8 @@ for profile_file in "$REPO"/profiles/*; do
         # -Es skips the vimrc unless -u names it, and exits 1 on any error in it
         clean_env "$vim" -N -u "$home/.vimrc" -i NONE -Es +qa!
         expect "$profile: .vimrc loads without errors" '[ $code -eq 0 ]'
+        clean_env "$vim" -N -u "$home/.vimrc" -i NONE -Es -c 'if &shiftwidth != 4 | cquit | endif' +qa!
+        expect "$profile: vim indents by 4" '[ $code -eq 0 ]'
     fi
 
     if [ -n "$tmux" ]; then
@@ -140,6 +156,11 @@ for profile_file in "$REPO"/profiles/*; do
         clean_env "$tmux" -S "$tmux_socket" source-file "$home/.tmux.conf"
         expect "$profile: .tmux.conf loads without errors" '[ $code -eq 0 ] && [ ! -s "$tmp/err" ] && [ ! -s "$tmp/out" ]'
     fi
+
+    # Last, since it breaks this home: a program saved ~/.zshrc as a plain copy
+    cp "$home/.zshrc" "$home/.zshrc.copy" && mv "$home/.zshrc.copy" "$home/.zshrc"
+    clean_env "$zsh" -i -c 'dots status'
+    expect "$profile: dots says why when ~/.zshrc isn't a link" '[ $code -eq 1 ] && err_has "isn.t linked into the repo"'
 done
 
 summary

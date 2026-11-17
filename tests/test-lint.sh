@@ -18,7 +18,7 @@ git ls-files -s | awk '$1 != "160000" { mode = $1; sub(/^[^\t]*\t/, ""); print m
 config_dialects() {
     case $1 in
         .zsh/*.md) ;;
-        .zshrc|.zshenv|.zprofile|.zsh/*)                     echo zsh ;;
+        .zshrc|.zshenv|.zprofile|.zlogout|.zsh/*)            echo zsh ;;
         .bashrc|.bash_profile|.bash_logout|.bash/*)          echo bash ;;
         .profile|.sh/*)                                      echo sh ;;
         .shell/env|.shell/login|.shell/*/env|.shell/*/login) echo sh bash zsh ;;
@@ -57,6 +57,8 @@ while read -r mode path; do
     if [ -n "$dialects" ]; then
         expect "$path has a shebang, so it's executable" '[ "$mode" = 100755 ]'
     else
+        # Sourced configs and images don't need to be executable
+        expect "$path is only executable if it's a script" '[ "$mode" != 100755 ] || head -c 2 "$path" | grep -q "#!"'
         dialects=$(config_dialects "${path#*/}")
     fi
     for d in $dialects; do
