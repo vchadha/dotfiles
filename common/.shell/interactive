@@ -45,9 +45,17 @@ function scratch() {
 }
 
 # git for the dotfiles repo, wherever it's cloned: ~/.zshrc is a stow
-# symlink to <repo>/common/.zshrc, so follow it back
+# symlink to <repo>/common/.zshrc, so follow it back. `dots install ...`
+# runs the repo's install.sh instead (git has no `install` command to shadow).
 dots() {
-    git -C "$(dirname "$(realpath "$HOME/.zshrc")")/.." "$@"
+    local repo
+    repo=$(realpath "$(dirname "$(realpath "$HOME/.zshrc")")/..")
+    if [ "$1" = install ]; then
+        shift
+        "$repo/install.sh" "$@"
+    else
+        git -C "$repo" "$@"
+    fi
 }
 
 #

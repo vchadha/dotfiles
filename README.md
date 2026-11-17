@@ -68,16 +68,17 @@ drops the rest.
 ## Making changes
 
 Installed files are symlinks into this repo, so editing `~/.zshrc` *is* editing
-`common/.zshrc`. `dots` runs git in the repo from anywhere:
+`common/.zshrc`. `dots` runs git in the repo from anywhere, and
+`dots install` runs `install.sh` (same flags):
 
 ```sh
 dots status
 dots diff
 dots commit -am "..."
-dots pull && ./install.sh <profile>   # get upstream changes
+dots pull && dots install <profile>   # get upstream changes
 ```
 
-Re-running `install.sh` is safe. It links new files (e.g. after a plugin
+Re-running `dots install` is safe. It links new files (e.g. after a plugin
 update) and removes links to files deleted from the repo. If you delete a
 whole folder from a package, though, its links stay behind in `~`, broken.
 Delete those by hand.
@@ -85,19 +86,19 @@ Delete those by hand.
 There are two ways a change can bypass git:
 
 - **An app creates a new config file.** It's a real file in `~`, not in the
-  repo. To track it, move it into the right package and re-run `install.sh`:
+  repo. To track it, move it into the right package and re-run the install:
 
   ```sh
-  mv ~/.config/foo/new.conf common/.config/foo/
-  ./install.sh <profile>
+  mv ~/.config/foo/new.conf ~/Developer/dotfiles/common/.config/foo/
+  dots install <profile>
   ```
 
 - **A program replaces a symlink with a regular file.** This happens with
   programs that save by writing a new file and renaming it over the old one.
   From then on, edits to that file stop reaching the repo.
 
-  To find these, re-run `./install.sh <profile>`. It reports each one as a
-  conflict and changes nothing. Then `./install.sh --adopt <profile>` moves the
+  To find these, re-run `dots install <profile>`. It reports each one as a
+  conflict and changes nothing. Then `dots install --adopt <profile>` moves the
   files back into the repo, and `dots diff` shows what changed.
 
 ### Installers that edit your shell config
