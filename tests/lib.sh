@@ -33,7 +33,17 @@ expect() {
 out_has() { grep -q -- "$1" "$tmp/out"; }
 err_has() { grep -q -- "$1" "$tmp/err"; }
 
+# skip <what wasn't checked, and why>: for checks that need a tool this
+# machine doesn't have. Listed under the totals, so a pass doesn't claim more
+# than it covered.
+skips=
+skip() {
+    skips="$skips  skipped: $1
+"
+}
+
 summary() {
     echo "$(basename "$0"): $passes passed, $fails failed"
+    printf '%s' "$skips"
     [ "$fails" -eq 0 ]
 }

@@ -38,6 +38,8 @@ shebang_dialect() {
 # dash is the strictest POSIX shell around (it's Debian's /bin/sh), so prefer
 # it for sh; /bin/sh on macOS is bash in POSIX mode and accepts bashisms
 sh_checker=$(command -v dash || echo /bin/sh)
+[ "$sh_checker" != /bin/sh ] ||
+    skip "strict POSIX syntax check -- dash isn't installed, so /bin/sh checks the sh files and may accept bashisms"
 
 syntax_ok() { # <dialect> <file>
     case $1 in

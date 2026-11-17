@@ -199,13 +199,18 @@ tests/run.sh
 ```
 
 Runs every suite, each against throwaway home folders, so your own is never
-touched. Takes a few seconds; run it before pushing.
+touched. Takes a few seconds; run it before pushing. Works from any folder,
+and each suite also runs on its own, e.g. `tests/test-lint.sh`.
+
+Needs `git`, `stow`, `zsh` and `python3`. `dash`, `vim` and `tmux` are
+optional: without one, its checks are skipped, and listed as skipped under
+that suite's totals.
 
 | Suite | Checks |
 |---|---|
 | `test-install-args.sh` | How `install.sh` handles what people type: flags in any order, `--help` next to mistakes, bad profile names |
 | `test-install-behavior.sh` | What it does to a home folder: conflicts, `--backup`, `--adopt`, re-runs, every profile linking cleanly |
-| `test-startup.sh` | Each profile for this OS, in a fresh home: zsh, bash and sh start without errors or output in every mode, with env loaded, Homebrew first and no duplicate `PATH` entries; vim and tmux load their configs |
+| `test-startup.sh` | Each profile for this OS, in a fresh home: zsh, bash and sh start without errors or output in every mode, with env loaded, Homebrew first, `~/.local/bin` present but after `/usr/bin`, and no duplicate `PATH` entries; vim and tmux load their configs |
 | `test-lint.sh` | Shell syntax in every shell that reads a file, the Waybar config parses, no icons from retired Nerd Font codepoints, scripts stay executable, `.gitignore` still catches credentials |
 
 The startup suite only covers the profiles for the OS it runs on.

@@ -19,6 +19,9 @@ bash=$(command -v bash)
 dash=$(command -v dash || true)
 vim=$(command -v vim || true)
 tmux=$(command -v tmux || true)
+[ -n "$dash" ] || skip "dash login (POSIX) checks -- dash isn't installed"
+[ -n "$vim" ]  || skip ".vimrc checks -- vim isn't installed"
+[ -n "$tmux" ] || skip ".tmux.conf checks -- tmux isn't installed"
 # Own socket file inside $tmp: a -L name would leave a socket behind in the
 # system tmux folder after every run
 tmux_socket="$tmp/tmux.sock"
