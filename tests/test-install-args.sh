@@ -1,19 +1,16 @@
 #!/bin/sh
 #
 # How install.sh handles what people type: flags in any order, --help next
-# to mistakes, bad profile names. Each case runs the real script against a
-# throwaway $HOME, so nothing touches yours.
+# to mistakes, bad profile names.
 #
 . "$(dirname "$0")/lib.sh"
-
-scratch_profile="$REPO/profiles/zz-test-empty-$$"
-cleanup() { rm -f "$scratch_profile"; }
+copy_repo
 
 # Runs install.sh with the given arguments in a fresh $home; sets $code and
 # fills $tmp/out and $tmp/err.
 run() {
     home=$(mktemp -d "$tmp/home.XXXXXX")
-    HOME=$home "$REPO/install.sh" "$@" > "$tmp/out" 2> "$tmp/err"
+    HOME=$home "$repo/install.sh" "$@" > "$tmp/out" 2> "$tmp/err"
     code=$?
 }
 
@@ -65,8 +62,8 @@ expect path_outside_profiles_rejected \
 run profiles/thinkpad
 expect profile_given_as_path_rejected '[ $code -eq 2 ] && err_has "not a path"'
 
-printf '   \n\n' > "$scratch_profile"
-run "$(basename "$scratch_profile")"
+printf '   \n\n' > "$repo/profiles/empty"
+run empty
 expect empty_profile_fails_loud \
     '[ $code -eq 1 ] && err_has "doesn.t list any packages" && nothing_installed'
 

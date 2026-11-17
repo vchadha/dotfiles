@@ -84,6 +84,9 @@ done
 
 command -v stow > /dev/null || die "GNU Stow isn't installed (macOS: brew install stow, Arch: pacman -S stow)"
 
+# Checks out the plugins at the commits this repo pins. That also undoes a
+# plugin you've moved but not committed -- the price of `dots pull && dots
+# install` picking up pinned updates from other machines.
 git submodule update --init
 
 # Flags passed explicitly rather than trusting .stowrc: the target has to be
@@ -103,24 +106,43 @@ run_stow() {
 case $mode in
 backup)
     backup="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
+    move_to_backup() { # <path under ~>
+        mkdir -p "$backup/$(dirname "$1")"
+        mv "$HOME/$1" "$backup/$1"
+        echo "backed up ~/$1 -> $backup/$1"
+    }
     for pkg in $packages; do
         (cd "$pkg" && find . \( -name .git -o -name .gitignore -o -name .gitmodules -o -name .DS_Store \) -prune \
             -o \( -type f -o -type l \) -print) |
         while IFS= read -r f; do
             f=${f#./}
-            target="$HOME/$f"
+            # A file or a link where the package has a folder blocks
+            # everything under it, so back up that one item instead. Such a
+            # link is often an old Stow link into this repo, and looking
+            # inside it would "back up" the repo's own files.
+            blocker=
+            dir=$(dirname "$f")
+            while [ "$dir" != . ]; do
+                if [ -L "$HOME/$dir" ] || { [ -e "$HOME/$dir" ] && [ ! -d "$HOME/$dir" ]; }; then
+                    blocker=$dir
+                fi
+                dir=$(dirname "$dir")
+            done
+            if [ -n "$blocker" ]; then
+                move_to_backup "$blocker"
+                continue
+            fi
             # Re-running install: the target is already our symlink, keep it
+            target="$HOME/$f"
             if [ -L "$target" ] && [ "$(realpath "$target")" = "$(realpath "$pkg/$f")" ]; then
                 continue
             fi
             if [ -e "$target" ] || [ -L "$target" ]; then
-                mkdir -p "$backup/$(dirname "$f")"
-                mv "$target" "$backup/$f"
-                echo "backed up ~/$f -> $backup/$f"
+                move_to_backup "$f"
             fi
         done
     done
-    run_stow $packages
+    run_stow $packages || die "stow failed after the backup (see above); your old files are in $backup"
     ;;
 adopt)
     # --adopt overwrites repo files in place, so git has to be able to undo it

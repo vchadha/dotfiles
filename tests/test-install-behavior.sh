@@ -1,19 +1,10 @@
 #!/bin/sh
 #
 # What install.sh does to a home folder: conflicts, --backup, --adopt,
-# re-runs, and every profile linking cleanly. Runs against a copy of the repo,
-# since --adopt and some cases change files in it, and a throwaway $HOME.
+# re-runs, and every profile linking cleanly.
 #
 . "$(dirname "$0")/lib.sh"
-
-# A space in the path, to catch unquoted variables in install.sh
-repo="$tmp/dots copy"
-cp -RP "$REPO" "$repo"
-# Snapshot the working tree as-is, so uncommitted changes to install.sh get
-# tested and --adopt sees a clean tree
-git -C "$repo" add -A
-git -C "$repo" -c user.name=test -c user.email=test@example.invalid \
-    -c commit.gpgsign=false commit -q --allow-empty -m snapshot
+copy_repo
 
 # Later run_install calls reuse this home until the next new_home
 new_home() { home=$(mktemp -d "$tmp/home.XXXXXX"); }
@@ -67,6 +58,23 @@ expect backup_handles_spaces_in_paths \
 
 run_install --backup "$profile"
 expect backup_rerun_backs_up_nothing_new '[ $code -eq 0 ] && [ "$(backups)" -eq 1 ]'
+
+new_home
+echo mine > "$home/.zshrc"
+mkdir -p "$home/.config"
+echo mine > "$home/.config/gotop"
+run_install --backup "$profile"
+b=$(ls -d "$home"/.dotfiles-backup/* 2> /dev/null | head -1)
+expect backup_moves_a_file_where_the_repo_has_a_folder \
+    '[ $code -eq 0 ] && [ "$(cat "$b/.config/gotop")" = mine ] && links_to_repo .zshrc common/.zshrc'
+
+# An old Stow link that points a whole folder into the repo
+new_home
+ln -s "$repo/common/.zsh" "$home/.zsh"
+run_install --backup "$profile"
+expect backup_never_moves_repo_files_through_an_old_folder_link \
+    '[ $code -eq 0 ] && [ -z "$(git -C "$repo" status --short)" ] && links_to_repo .zsh/env common/.zsh/env'
+reset_repo
 
 new_home
 echo finder > "$home/.DS_Store"

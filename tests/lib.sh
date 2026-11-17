@@ -30,6 +30,18 @@ expect() {
     fi
 }
 
+# Sets $repo to a copy of the repo, so suites never change the real one
+# (install.sh resets submodules, and some cases edit files). Uncommitted
+# changes are snapshotted into a commit, so they get tested and --adopt sees
+# a clean tree. A space in the path catches unquoted variables in install.sh.
+copy_repo() {
+    repo="$tmp/dots copy"
+    cp -RP "$REPO" "$repo"
+    git -C "$repo" add -A
+    git -C "$repo" -c user.name=test -c user.email=test@example.invalid \
+        -c commit.gpgsign=false commit -q --allow-empty -m snapshot
+}
+
 out_has() { grep -q -- "$1" "$tmp/out"; }
 err_has() { grep -q -- "$1" "$tmp/err"; }
 
