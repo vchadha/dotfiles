@@ -2,7 +2,7 @@
 #
 # Static checks over the tracked files: shell syntax in every dialect that
 # reads a file, configs that parse, no retired Nerd Font icons, scripts kept
-# executable, and the .gitignore credential failsafe still catching secrets.
+# executable, and .gitignore still catching every new file.
 #
 . "$(dirname "$0")/lib.sh"
 
@@ -116,29 +116,13 @@ for path in sys.stdin.read().splitlines():
 sys.exit(bad > 0)
 " > "$tmp/out" 2> "$tmp/err"'
 
-#
-# .gitignore failsafe
-#
-
-git ls-files -ci --exclude-standard > "$tmp/out"
-expect "no tracked file is ignored (a rule would hide its future edits)" '[ ! -s "$tmp/out" ]'
-
-for secret in \
-    common/.ssh/id_ed25519 common/.ssh/known_hosts \
-    common/.gnupg/private-keys-v1.d/x.key common/.password-store/x.gpg \
-    macos/.config/gh/hosts.yml common/.aws/credentials common/.aws/sso/cache/t.json \
-    common/.config/gcloud/credentials.db common/.kube/config common/.docker/config.json \
-    common/.cargo/credentials.toml common/.netrc common/.git-credentials common/.npmrc \
-    common/.pypirc common/.env common/.env.local host-thinkpad/server.pem \
-    common/.zsh_history common/.shell/local/env common/.zsh/local/env \
-    common/.claude/.credentials.json common/.claude/projects/x.jsonl \
-    common/.claude/settings.local.json common/.claude.json common/.claude.json.backup
+# Nothing new gets committed by accident, secrets least of all
+for new in common/.zz-new-config macos/.config/gh/hosts.yml common/.claude.json \
+    common/.ssh/id_ed25519 profiles/zz-new tests/zz-new.sh
 do
-    expect "gitignore catches $secret" 'git check-ignore -q "$secret"'
+    expect "gitignore catches the new file $new" 'git check-ignore -q "$new"'
 done
-
-for kept in common/.ssh/config macos/.config/gh/config.yml common/.zshrc common/.claude/CLAUDE.md; do
-    expect "gitignore leaves $kept trackable" '! git check-ignore -q "$kept"'
-done
+expect "git add still works on a tracked file inside a folder" \
+    'git add --dry-run -- tests/lib.sh common/.config/gotop/gotop.conf > "$tmp/out" 2> "$tmp/err"'
 
 summary

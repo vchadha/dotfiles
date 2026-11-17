@@ -188,3 +188,11 @@ check)
 esac
 
 echo "stowed:" $packages
+
+# .gitignore ignores every new file, so one moved into a package works here
+# but never reaches other machines until it's added on purpose
+untracked=$(git ls-files --others --exclude=.DS_Store -- $packages)
+if [ -n "$untracked" ]; then
+    echo "install.sh: not in git yet, so other machines won't get these; add each with 'dots add -f <file>':" >&2
+    printf '  %s\n' $untracked >&2
+fi

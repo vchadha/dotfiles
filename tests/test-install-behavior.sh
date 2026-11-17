@@ -132,6 +132,7 @@ new_home
 echo "# test" > "$repo/common/.zz-test"
 run_install "$profile"
 expect new_file_gets_linked '[ $code -eq 0 ] && [ -L "$home/.zz-test" ]'
+expect new_untracked_file_is_reported 'err_has "common/.zz-test"'
 rm "$repo/common/.zz-test"
 run_install "$profile"
 expect rerun_removes_link_to_deleted_file '[ $code -eq 0 ] && [ ! -L "$home/.zz-test" ]'

@@ -144,10 +144,10 @@ for profile_file in "$repo"/profiles/*; do
     esc=$(printf '\033')
     (cd "$repo" && clean_env "$zsh" -i -c 'print -P "$RPROMPT"')
     expect "$profile: prompt shows the branch in green in a clean repo" 'out_has "${esc}\[32m\["'
-    touch "$repo/untracked"
+    echo "# change" >> "$repo/README.md"
     (cd "$repo" && clean_env "$zsh" -i -c 'print -P "$RPROMPT"')
     expect "$profile: prompt shows the branch in yellow with changes" 'out_has "${esc}\[33m\["'
-    rm "$repo/untracked"
+    git -C "$repo" checkout -q README.md
 
     clean_env "$zsh" -i -c 'echo "${_comps[dots]-} ${_comps[install.sh]-}"'
     expect "$profile: tab completion registered for dots and install.sh" \
