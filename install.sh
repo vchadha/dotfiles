@@ -197,7 +197,7 @@ echo "stowed:" $packages
 # listed apart, so the warning never suggests adding one.
 secrets=$(git ls-files --others --ignored --exclude-from=.secret-paths -- $packages)
 if [ -n "$secrets" ]; then
-    echo "install.sh: these look like secrets; move them out of the repo (e.g. into ~/.shell/local/), don't add them:" >&2
+    echo "install.sh: these look like secrets; move each back to its place in ~ as a real file, don't add them:" >&2
     printf '%s\n' "$secrets" | sed 's/^/  /' >&2
 fi
 untracked=$(git ls-files --others --exclude=.DS_Store --exclude-from=.secret-paths -- $packages)

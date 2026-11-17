@@ -15,9 +15,10 @@ if [ -n "$paths" ]; then
     status=1
 fi
 
-# Private keys, and AWS, GitHub and Anthropic tokens
+# Private keys, and AWS, GitHub (classic and fine-grained) and Anthropic tokens
 keys=$(git grep --cached -lE -e '-----BEGIN [A-Z ]*PRIVATE KEY-----' \
-    -e 'AKIA[0-9A-Z]{16}' -e 'gh[pousr]_[A-Za-z0-9]{36}' -e 'sk-ant-[A-Za-z0-9_-]{20}')
+    -e 'AKIA[0-9A-Z]{16}' -e 'gh[pousr]_[A-Za-z0-9_]{36,}' -e 'github_pat_[A-Za-z0-9_]{22,}' \
+    -e 'sk-ant-[A-Za-z0-9_-]{20}')
 if [ -n "$keys" ]; then
     echo "pre-commit: these contain what looks like a key or token:" >&2
     printf '%s\n' "$keys" | sed 's/^/  /' >&2

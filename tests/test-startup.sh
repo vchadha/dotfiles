@@ -133,6 +133,20 @@ for profile_file in "$repo"/profiles/*; do
         '[ $code -ne 0 ] && err_has "common/.zz-unadded"'
     rm "$repo/common/.zz-unadded"
 
+    # A branch that adds a file this machine has un-added
+    git -C "$repo" checkout -q -b zz-clash
+    echo theirs > "$repo/common/.zz-clash"
+    git -C "$repo" add -f common/.zz-clash
+    git -C "$repo" -c user.name=t -c user.email=t@example.invalid commit -q --no-verify -m clash
+    git -C "$repo" checkout -q -
+    echo mine > "$repo/common/.zz-clash"
+    clean_env "$zsh" -i -c 'dots checkout zz-clash'
+    expect "$profile: dots checkout never overwrites an un-added file" \
+        '[ $code -ne 0 ] && [ "$(cat "$repo/common/.zz-clash")" = mine ]'
+    rm "$repo/common/.zz-clash"
+    git -C "$repo" checkout -q - 2> /dev/null
+    git -C "$repo" branch -q -D zz-clash
+
     clean_env "$zsh" -c 'prepend_path "$HOME/.local/bin"; echo "probe PATH=$PATH"'
     expect "$profile: prepend_path moves a folder already on PATH to the front" \
         '[ "$(line_of "$home/.local/bin")" = 1 ] && no_duplicate_path_entries'

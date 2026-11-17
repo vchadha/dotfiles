@@ -2,3 +2,40 @@
 # (it ignores every new file, so it would hide nearly all of them)
 !*
 .git/
+
+# Then hide what usually holds secrets: a copy of .secret-paths (lint keeps
+# the two in step), so search tools never read them
+/*/.shell/local/
+/*/.zsh/local/
+**/.ssh/*
+!**/.ssh/config
+**/.claude/*
+!**/.claude/CLAUDE.md
+.claude.json*
+**/.gnupg/
+**/.password-store/
+**/.config/gh/hosts.yml
+**/.aws/credentials
+**/.aws/sso/cache/
+**/.aws/cli/cache/
+**/.config/gcloud/
+**/.azure/
+**/.kube/config
+**/.docker/config.json
+**/.terraform.d/credentials.tfrc.json
+**/.cargo/credentials.toml
+**/.gem/credentials
+.netrc
+.git-credentials
+.npmrc
+.pypirc
+.env
+.env.*
+.envrc
+*.pem
+*.key
+*.p12
+*.pfx
+.*_history
+.lesshst
+.viminfo

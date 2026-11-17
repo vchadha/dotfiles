@@ -16,13 +16,17 @@
 !*/
 
 # The repo's own files aren't config, so new ones show up as usual
-!/.*
+!/.gitignore
+!/.gitmodules
+!/.ignore
+!/.secret-paths
+!/.stowrc
 !/*.md
 !/*.sh
-!/hooks/*
-!/LICENSES/*
-!/profiles/*
-!/tests/*
+!/hooks/**
+!/LICENSES/**
+!/profiles/**
+!/tests/**
 
 # Finder litter, wherever it lands
 .DS_Store

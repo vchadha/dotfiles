@@ -119,11 +119,11 @@ sys.exit(bad > 0)
 # A new file in a package needs a deliberate add, secrets least of all; the
 # repo's own files (tests, profiles, docs) show up as usual
 for new in common/.zz-new-config macos/.config/gh/hosts.yml common/.claude.json \
-    common/.ssh/id_ed25519 "macos/Library/Application Support/zz.conf"
+    common/.ssh/id_ed25519 "macos/Library/Application Support/zz.conf" .env .envrc .zz-new
 do
     expect "gitignore catches the new package file $new" 'git check-ignore -q "$new"'
 done
-for new in tests/zz-new.sh profiles/zz-new hooks/zz-new LICENSES/zz.txt zz-new.md; do
+for new in tests/zz-new.sh tests/fixtures/zz.txt profiles/zz-new hooks/zz-new LICENSES/zz.txt zz-new.md; do
     expect "gitignore shows the new repo file $new" '! git check-ignore -q "$new"'
 done
 expect "gitignore still hides .DS_Store at the root" 'git check-ignore -q .DS_Store'
@@ -136,6 +136,8 @@ if command -v rg > /dev/null; then
 else
     skip "ripgrep search check -- rg isn't installed"
 fi
+expect ".ignore hides every .secret-paths pattern from search tools" \
+    'grep -vE "^(#|\$)" .secret-paths | while IFS= read -r p; do grep -qxF -- "$p" .ignore || echo "$p"; done > "$tmp/out"; [ ! -s "$tmp/out" ]'
 
 #
 # Secrets
@@ -144,16 +146,32 @@ fi
 expect "no tracked file looks like a secret (hooks/pre-commit passes)" 'hooks/pre-commit > "$tmp/out" 2> "$tmp/err"'
 
 copy_repo
+# refused <path>: stage the file (already written) with -f and run the hook
+refused() {
+    git -C "$repo" add -f -- "$1" &&
+        (cd "$repo" && hooks/pre-commit) > "$tmp/out" 2> "$tmp/err"
+    status=$?
+    git -C "$repo" rm -q --cached -- "$1"
+    [ $status -ne 0 ] && err_has "$1"
+}
+
 mkdir -p "$repo/common/.config/gh"
 echo 'oauth_token: x' > "$repo/common/.config/gh/hosts.yml"
-git -C "$repo" add -f common/.config/gh/hosts.yml
-(cd "$repo" && hooks/pre-commit) > "$tmp/out" 2> "$tmp/err"
-expect "pre-commit refuses a secret path, even one added with -f" 'err_has "common/.config/gh/hosts.yml"'
-git -C "$repo" rm -q --cached common/.config/gh/hosts.yml
-# Built at runtime so this file doesn't trip the hook itself
-printf -- '-----BEGIN OPENSSH PRIVATE %s-----\n' KEY > "$repo/common/.zz-key"
-git -C "$repo" add -f common/.zz-key
-(cd "$repo" && hooks/pre-commit) > "$tmp/out" 2> "$tmp/err"
-expect "pre-commit refuses a private key in any file" 'err_has "common/.zz-key"'
+expect "pre-commit refuses a secret path, even one added with -f" 'refused common/.config/gh/hosts.yml'
+echo 'export TOKEN=x' > "$repo/common/.envrc"
+expect "pre-commit refuses direnv's .envrc" 'refused common/.envrc'
+
+# Samples are built at runtime so this file doesn't trip the hook itself
+x36=$(printf '%036d' 0)
+token_refused() { # <what> <sample>
+    echo "$2" > "$repo/common/.zz-key"
+    expect "pre-commit refuses $1 in any file" 'refused common/.zz-key'
+}
+token_refused "a private key" "$(printf -- '-----BEGIN OPENSSH PRIVATE %s-----' KEY)"
+token_refused "an AWS key" "AKIA$(printf '%016d' 0)"
+token_refused "a classic GitHub token" "ghp_$x36"
+token_refused "a GitHub app token in the long APPID_JWT form" "ghs_12345_$x36"
+token_refused "a fine-grained GitHub token" "github_pat_$x36$x36"
+token_refused "an Anthropic key" "sk-ant-api03-$x36"
 
 summary
