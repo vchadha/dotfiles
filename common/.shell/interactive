@@ -9,24 +9,9 @@ alias ls='ls --color=auto'
 # Functions
 #
 
-# Look up
+# Grep files whose name matches a glob: lookup '*.js' pattern
 lookup() {
-    find . -name "$1" -type f -exec grep -Hn "$2" {} \;
-}
-
-# Batch look up
-blookup() {
-    find . -name "$1" -type f -exec grep -Hn "$2" {} \+
-}
-
-# Piped batch look up
-pblookup() {
-    find . -name "$1" -type f -print0 | xargs -0 grep -Hn "$2"
-}
-
-# Parallel piped look up
-pplookup() {
-    find . -name "$1" -type f -print0 | xargs -0 -n1 -P8 grep -Hn "$2"
+    find . -name "$1" -type f -exec grep -Hn "$2" {} +
 }
 
 # Append $1 to $PATH, unless already present.
