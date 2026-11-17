@@ -124,12 +124,14 @@ for secret in \
     common/.config/gcloud/credentials.db common/.kube/config common/.docker/config.json \
     common/.cargo/credentials.toml common/.netrc common/.git-credentials common/.npmrc \
     common/.pypirc common/.env common/.env.local host-thinkpad/server.pem \
-    common/.zsh_history common/.shell/local/env common/.zsh/local/env
+    common/.zsh_history common/.shell/local/env common/.zsh/local/env \
+    common/.claude/.credentials.json common/.claude/projects/x.jsonl \
+    common/.claude/settings.local.json
 do
     expect "gitignore catches $secret" 'git check-ignore -q "$secret"'
 done
 
-for kept in common/.ssh/config macos/.config/gh/config.yml common/.zshrc; do
+for kept in common/.ssh/config macos/.config/gh/config.yml common/.zshrc common/.claude/CLAUDE.md; do
     expect "gitignore leaves $kept trackable" '! git check-ignore -q "$kept"'
 done
 

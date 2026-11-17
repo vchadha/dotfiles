@@ -168,6 +168,7 @@ has the details, keybindings included.
   [goyo](https://github.com/junegunn/goyo.vim)
 - **tmux**
 - **[gotop](https://github.com/xxxserxxx/gotop)**
+- **Claude Code**: global `CLAUDE.md` (the rest of `~/.claude` is never tracked)
 
 ### `macos/` (every Mac)
 
