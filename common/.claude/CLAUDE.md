@@ -100,7 +100,7 @@ Follow Conventional Comments:
 ```
 
 Labels: `praise`, `nitpick`, `suggestion`, `issue`, `todo`, `question`, `thought`, `chore`, `note`
-Decorations: `(non-blocking)`, `(blocking)`, `(if-minor)`
+Decorations: `(non-blocking)`, `(blocking)`, `(if-minor)`, `(pre-existing)`
 
 Tone: same as commits. Blunt about the code, humble toward people: critique the code, not the author. Say *why* it matters, not just what's off.
-Use `(blocking)` only for correctness, security or data loss. In a PR review, only what the PR introduces or makes worse blocks; a live problem it didn't touch is an `issue` marked pre-existing. Style and taste are `(non-blocking)` or `suggestion`. When unsure whether it blocks, use `(non-blocking)` and say why. `(if-minor)` means "fix it only if the fix is small".
+Use `(blocking)` only for correctness, security or data loss. In a PR review, only what the PR introduces or makes worse blocks; a live problem it didn't touch is `issue (non-blocking, pre-existing)`, though a pre-existing security or data-loss problem still goes first and gets its own fix. Style and taste are `(non-blocking)` or `suggestion`. When unsure whether it blocks, use `(non-blocking)` and say why. `(if-minor)` means "fix it only if the fix is small".
