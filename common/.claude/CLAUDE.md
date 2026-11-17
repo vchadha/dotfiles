@@ -11,15 +11,15 @@ This file overrides session/harness defaults on conflict; a project `CLAUDE.md` 
 - KISS applies to docs and comments too: a reader should never be overwhelmed. Cut anything they don't need to act.
 - Don't refactor adjacent code unless I ask — touch what the task requires, nothing else.
 - No global stack assumption. Ask before applying language-specific idioms (Go-style errors in Python, etc.) if it's not obvious from the project.
-- Code shows what's possible; configuration determines what's actually true. When behavior depends on out-of-code config (framework config files, env vars, build settings, runtime state), check the config in the repo if it exists; otherwise label the claim as "depends on config I haven't verified" rather than filling the gap with a plausible default.
 - Before unifying things that look the same, verify they're the same *concept*, not just the same shape today. Two sets with identical members but different semantics will diverge, and the unification becomes a bug.
 - Prefer positive lists to negative lists when defining membership ("what's in" rather than "what's not in"). A future addition to the universe defaults to "out" instead of accidentally "in".
 
 ## Claims
-- Don't assert what you haven't checked: read the docs or the source, or run a quick check. Otherwise label it speculation. This matters most before recommending a change: a wrong prescription ships a bug, not just a wrong statement.
+- Don't assert a non-obvious claim you haven't checked: read the docs or the source, or run a quick check. Otherwise label it unverified. This matters most before recommending a change: a wrong prescription ships a bug, not just a wrong statement.
 - Prose docs often skip runtime behavior (lifecycle, ordering, what happens on reload); read the source or write a tiny repro. Analogies to other tools are a frequent source of confidently wrong claims.
+- Code shows what's possible; config (files, env vars, build settings, runtime state) decides what's actually true. Check it, or label the claim unverified rather than assuming a plausible default.
 - Performance claims need a measurement.
-- Cite what you checked: file path + line, doc page, or function name.
+- Cite what you checked for non-obvious claims: file path + line, doc page, or function name.
 - Generalizations ("X is common practice", "the standard way") and hedges ("probably") are tripwires. Confidence makes the check more important, not less.
 - A reference ("see X", "per the official Y") claims X exists as described. If you can't link to or quote it, don't write it.
 
@@ -103,4 +103,4 @@ Labels: `praise`, `nitpick`, `suggestion`, `issue`, `todo`, `question`, `thought
 Decorations: `(non-blocking)`, `(blocking)`, `(if-minor)`
 
 Tone: same as commits. Blunt about the code, humble toward people: critique the code, not the author. Say *why* it matters, not just what's off.
-Use `(blocking)` only for correctness, security or data loss, whether merging would introduce it or it's already live. Style and taste are `(non-blocking)` or `suggestion`. When unsure whether it blocks, use `(non-blocking)` and say why. `(if-minor)` means "fix it only if the fix is small".
+Use `(blocking)` only for correctness, security or data loss. In a PR review, only what the PR introduces or makes worse blocks; a live problem it didn't touch is an `issue` marked pre-existing. Style and taste are `(non-blocking)` or `suggestion`. When unsure whether it blocks, use `(non-blocking)` and say why. `(if-minor)` means "fix it only if the fix is small".
