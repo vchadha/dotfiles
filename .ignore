@@ -1,0 +1,4 @@
+# For ripgrep and tools built on it: search the files .gitignore hides
+# (it ignores every new file, so it would hide nearly all of them)
+!*
+.git/

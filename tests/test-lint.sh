@@ -116,13 +116,44 @@ for path in sys.stdin.read().splitlines():
 sys.exit(bad > 0)
 " > "$tmp/out" 2> "$tmp/err"'
 
-# Nothing new gets committed by accident, secrets least of all
+# A new file in a package needs a deliberate add, secrets least of all; the
+# repo's own files (tests, profiles, docs) show up as usual
 for new in common/.zz-new-config macos/.config/gh/hosts.yml common/.claude.json \
-    common/.ssh/id_ed25519 profiles/zz-new tests/zz-new.sh
+    common/.ssh/id_ed25519 "macos/Library/Application Support/zz.conf"
 do
-    expect "gitignore catches the new file $new" 'git check-ignore -q "$new"'
+    expect "gitignore catches the new package file $new" 'git check-ignore -q "$new"'
 done
+for new in tests/zz-new.sh profiles/zz-new hooks/zz-new LICENSES/zz.txt zz-new.md; do
+    expect "gitignore shows the new repo file $new" '! git check-ignore -q "$new"'
+done
+expect "gitignore still hides .DS_Store at the root" 'git check-ignore -q .DS_Store'
 expect "git add still works on a tracked file inside a folder" \
     'git add --dry-run -- tests/lib.sh common/.config/gotop/gotop.conf > "$tmp/out" 2> "$tmp/err"'
+
+if command -v rg > /dev/null; then
+    expect "ripgrep searches package files despite .gitignore" \
+        'rg -l --hidden "^export EDITOR=vim" common/.shell > "$tmp/out" && out_has common/.shell/env'
+else
+    skip "ripgrep search check -- rg isn't installed"
+fi
+
+#
+# Secrets
+#
+
+expect "no tracked file looks like a secret (hooks/pre-commit passes)" 'hooks/pre-commit > "$tmp/out" 2> "$tmp/err"'
+
+copy_repo
+mkdir -p "$repo/common/.config/gh"
+echo 'oauth_token: x' > "$repo/common/.config/gh/hosts.yml"
+git -C "$repo" add -f common/.config/gh/hosts.yml
+(cd "$repo" && hooks/pre-commit) > "$tmp/out" 2> "$tmp/err"
+expect "pre-commit refuses a secret path, even one added with -f" 'err_has "common/.config/gh/hosts.yml"'
+git -C "$repo" rm -q --cached common/.config/gh/hosts.yml
+# Built at runtime so this file doesn't trip the hook itself
+printf -- '-----BEGIN OPENSSH PRIVATE %s-----\n' KEY > "$repo/common/.zz-key"
+git -C "$repo" add -f common/.zz-key
+(cd "$repo" && hooks/pre-commit) > "$tmp/out" 2> "$tmp/err"
+expect "pre-commit refuses a private key in any file" 'err_has "common/.zz-key"'
 
 summary

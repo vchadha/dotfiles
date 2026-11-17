@@ -128,8 +128,8 @@ There are two ways a change can bypass git:
 
 - **An app creates a new config file.** It's a real file in `~`, not in the
   repo. To track it, move it into the right package, re-run the install, and
-  add it to git. `.gitignore` ignores every new file so secrets can't slip in,
-  hence the `-f`; add files one at a time, never a folder:
+  add it to git. `.gitignore` ignores every new file in a package so secrets
+  can't slip in, hence the `-f`; add files one at a time, never a folder:
 
   ```sh
   mv ~/.config/foo/new.conf ~/Developer/dotfiles/common/.config/foo/
@@ -137,7 +137,10 @@ There are two ways a change can bypass git:
   dots add -f common/.config/foo/new.conf
   ```
 
-  Until it's added, `dots install` lists it as not in git yet.
+  Until it's added, `dots install` lists it as not in git yet, and `dots pull`
+  refuses to run (a pull could overwrite it). If it looks like a secret,
+  `dots install` says to move it out instead, and a commit hook refuses it.
+  A new plugin needs `-f` too: `dots submodule add -f <url> <path>`.
 
 - **A program replaces a symlink with a regular file.** This happens with
   programs that save by writing a new file and renaming it over the old one.
@@ -207,8 +210,7 @@ has the details, keybindings included.
 
 ## Adding a machine
 
-1. Add `profiles/<name>` (and `dots add -f` it), listing the packages the
-   machine gets on one line:
+1. Add `profiles/<name>`, listing the packages the machine gets on one line:
 
    ```sh
    $ cat profiles/macbookpro-home
@@ -216,7 +218,8 @@ has the details, keybindings included.
    ```
 
 2. If the machine needs something no other machine does, add a
-   `host-<name>/` package and list it in the profile.
+   `host-<name>/` package and list it in the profile. Its files need
+   `dots add -f`, like any new file in a package.
 3. If it runs a new OS (e.g. Debian), add a `<os>/` package with
    `.shell/os/{env,interactive}`.
 4. Add it to [What's included](#whats-included) and the wiki's Features page.
@@ -243,7 +246,7 @@ that suite's totals.
 | `test-install-args.sh` | How `install.sh` handles what people type: flags in any order, `--help` next to mistakes, bad profile names |
 | `test-install-behavior.sh` | What it does to a home folder: conflicts, `--backup`, `--adopt`, re-runs, every profile linking cleanly |
 | `test-startup.sh` | Each profile for this OS, in a fresh home: every shell starts without errors or output, with the right `PATH`; zsh's keys and git prompt, vim and tmux work as documented |
-| `test-lint.sh` | Shell syntax in every shell that reads a file, the Waybar config parses, no retired Nerd Font icons, only scripts are executable, `.gitignore` still catches every new file |
+| `test-lint.sh` | Shell syntax in every shell that reads a file, the Waybar config parses, no retired Nerd Font icons, only scripts are executable, new package files are ignored, nothing tracked looks like a secret |
 
 The startup suite only covers the profiles for the OS it runs on.
 

@@ -1,14 +1,28 @@
-# New files are ignored by default, so nothing gets committed by accident:
-# an app folder moved into a package can carry tokens, history or account
+# New files in packages are ignored by default, so nothing gets committed by
+# accident: an app folder moved in can carry tokens, history or account
 # details. Files git already tracks aren't affected. Add a new one on
 # purpose, one file at a time (-f skips these rules, so never use it on a
 # folder):
 #
 #   dots add -f common/.config/foo/foo.conf
+#
+# hooks/pre-commit is the backstop: it refuses paths in .secret-paths.
 
 # Ignore every file...
 *
 
-# ...but not folders: git refuses even `git add` on a tracked file inside an
-# ignored folder
+# ...but not folders. With a folder ignored, `git add` on a tracked file in
+# it still stages it, but warns and exits 1, so `dots add x && ...` stops.
 !*/
+
+# The repo's own files aren't config, so new ones show up as usual
+!/.*
+!/*.md
+!/*.sh
+!/hooks/*
+!/LICENSES/*
+!/profiles/*
+!/tests/*
+
+# Finder litter, wherever it lands
+.DS_Store

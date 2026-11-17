@@ -84,6 +84,9 @@ done
 
 command -v stow > /dev/null || die "GNU Stow isn't installed (macOS: brew install stow, Arch: pacman -S stow)"
 
+# Turns on hooks/pre-commit, which refuses to commit secrets
+git config core.hooksPath hooks
+
 # Checks out the plugins at the commits this repo pins. That also undoes a
 # plugin you've moved but not committed -- the price of `dots pull && dots
 # install` picking up pinned updates from other machines.
@@ -189,10 +192,16 @@ esac
 
 echo "stowed:" $packages
 
-# .gitignore ignores every new file, so one moved into a package works here
-# but never reaches other machines until it's added on purpose
-untracked=$(git ls-files --others --exclude=.DS_Store -- $packages)
+# .gitignore ignores every new file in a package, so one moved in works here
+# but never reaches other machines until it's added on purpose. Secrets are
+# listed apart, so the warning never suggests adding one.
+secrets=$(git ls-files --others --ignored --exclude-from=.secret-paths -- $packages)
+if [ -n "$secrets" ]; then
+    echo "install.sh: these look like secrets; move them out of the repo (e.g. into ~/.shell/local/), don't add them:" >&2
+    printf '%s\n' "$secrets" | sed 's/^/  /' >&2
+fi
+untracked=$(git ls-files --others --exclude=.DS_Store --exclude-from=.secret-paths -- $packages)
 if [ -n "$untracked" ]; then
     echo "install.sh: not in git yet, so other machines won't get these; add each with 'dots add -f <file>':" >&2
-    printf '  %s\n' $untracked >&2
+    printf '%s\n' "$untracked" | sed 's/^/  /' >&2
 fi

@@ -127,6 +127,12 @@ for profile_file in "$repo"/profiles/*; do
     clean_env "$zsh" -i -c 'dots rev-parse --show-toplevel'
     expect "$profile: dots finds the repo" '[ "$(cat "$tmp/out")" = "$(cd "$repo" && pwd -P)" ]'
 
+    echo x > "$repo/common/.zz-unadded"
+    clean_env "$zsh" -i -c 'dots pull'
+    expect "$profile: dots pull refuses while a package file isn't added (a pull could overwrite it)" \
+        '[ $code -ne 0 ] && err_has "common/.zz-unadded"'
+    rm "$repo/common/.zz-unadded"
+
     clean_env "$zsh" -c 'prepend_path "$HOME/.local/bin"; echo "probe PATH=$PATH"'
     expect "$profile: prepend_path moves a folder already on PATH to the front" \
         '[ "$(line_of "$home/.local/bin")" = 1 ] && no_duplicate_path_entries'

@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# Stops a commit that would put a secret in this public repo: a path from
+# .secret-paths, or a key or token in any tracked file. install.sh turns it
+# on; tests/test-lint.sh runs it too. For a false positive:
+# git commit --no-verify
+#
+cd "$(git rev-parse --show-toplevel)" || exit 1
+status=0
+
+paths=$(git ls-files --cached --ignored --exclude-from=.secret-paths)
+if [ -n "$paths" ]; then
+    echo "pre-commit: these usually hold secrets; unstage with 'git rm --cached <file>':" >&2
+    printf '%s\n' "$paths" | sed 's/^/  /' >&2
+    status=1
+fi
+
+# Private keys, and AWS, GitHub and Anthropic tokens
+keys=$(git grep --cached -lE -e '-----BEGIN [A-Z ]*PRIVATE KEY-----' \
+    -e 'AKIA[0-9A-Z]{16}' -e 'gh[pousr]_[A-Za-z0-9]{36}' -e 'sk-ant-[A-Za-z0-9_-]{20}')
+if [ -n "$keys" ]; then
+    echo "pre-commit: these contain what looks like a key or token:" >&2
+    printf '%s\n' "$keys" | sed 's/^/  /' >&2
+    status=1
+fi
+
+exit $status

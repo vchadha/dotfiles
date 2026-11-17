@@ -134,6 +134,17 @@ run_install "$profile"
 expect new_file_gets_linked '[ $code -eq 0 ] && [ -L "$home/.zz-test" ]'
 expect new_untracked_file_is_reported 'err_has "common/.zz-test"'
 rm "$repo/common/.zz-test"
+
+mkdir -p "$repo/macos/Library/Application Support/zz" "$repo/common/.shell/local"
+echo x > "$repo/macos/Library/Application Support/zz/new.conf"
+echo 'export TOKEN=x' > "$repo/common/.shell/local/env"
+run_install "$profile"
+expect untracked_file_with_a_space_is_listed_whole 'err_has "  macos/Library/Application Support/zz/new.conf"'
+expect warning_never_suggests_adding_a_secret \
+    'sed -n "/look like secrets/,/not in git yet/p" "$tmp/err" | grep -q "common/.shell/local/env" &&
+     ! sed -n "/not in git yet/,\$p" "$tmp/err" | grep -q "common/.shell/local/env"'
+expect install_turns_on_the_secrets_hook '[ "$(git -C "$repo" config core.hooksPath)" = hooks ]'
+rm -r "$repo/macos/Library/Application Support/zz" "$repo/common/.shell/local"
 run_install "$profile"
 expect rerun_removes_link_to_deleted_file '[ $code -eq 0 ] && [ ! -L "$home/.zz-test" ]'
 
