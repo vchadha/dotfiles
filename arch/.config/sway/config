@@ -11,8 +11,10 @@ set $down j
 set $up k
 set $right l
 
-# Terminal emulator
-set $term kitty
+# Terminal emulator -- foot, sway's own default. host.conf (included below)
+# can override it; the ThinkPad picks kitty, whose config lives in its host
+# package.
+set $term foot
 
 # Application launcher
 set $menu rofi -show drun
@@ -23,9 +25,9 @@ set $slideshow_path ~/.local/bin/scripts/slideshow.sh
 set $idle_path ~/.local/bin/scripts/idle.sh
 set $power_path ~/.local/bin/scripts/power.sh
 
-# Screenshot
-set $screenshot grim ~/Pictures/Screenshots/screenshot-$(date +"%Y-%m-%d-%H-%M-%S").png
-set $screenclip slurp | grim -g - ~/Pictures/Screenshots/screenshot-$(date +"%Y-%m-%d-%H-%M-%S").png
+# Screenshot (grim won't create the folder, and nothing else does)
+set $screenshot mkdir -p ~/Pictures/Screenshots && grim ~/Pictures/Screenshots/screenshot-$(date +"%Y-%m-%d-%H-%M-%S").png
+set $screenclip mkdir -p ~/Pictures/Screenshots && slurp | grim -g - ~/Pictures/Screenshots/screenshot-$(date +"%Y-%m-%d-%H-%M-%S").png
 
 # Background
 set $background ~/.wallpaper/wall.jpg

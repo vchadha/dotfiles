@@ -82,7 +82,3 @@ set novisualbell
 "
 syntax enable
 
-"
-" Functions
-"
-

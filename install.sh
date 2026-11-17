@@ -109,7 +109,7 @@ adopt)
     fi
     ;;
 check)
-    run_stow $packages || die "conflicts above; rerun with --backup (repo wins) or --adopt (merge via git)"
+    run_stow $packages || die "stow failed (see above); if it lists conflicts, rerun with --backup (repo wins) or --adopt (merge via git)"
     ;;
 esac
 
