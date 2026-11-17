@@ -2,55 +2,70 @@
 
 System Configuration Files
 
-My shell, editor and desktop config for macOS and Arch. Settings shared by
-every machine live in `common/`, and each machine adds the folders for its OS
-and hardware. `install.sh` symlinks them into `~` with
-[GNU Stow](https://www.gnu.org/software/stow/).
+My shell and app configs for my machines. Each top-level folder is a Stow
+*package*: `common/` holds settings shared by every machine, and each machine
+adds packages for its OS and hardware. `install.sh` symlinks them into `~/`
+with [GNU Stow](https://www.gnu.org/software/stow/).
 
 ## Layout
 
-| Folder | Goes on | Contains |
+| Package | Goes on | Contains |
 |---|---|---|
-| `common/` | every machine | shell, vim, tmux, gotop |
-| `macos/` | every Mac | Homebrew, dev toolchains, Colima |
+| `common/` | every machine | shell, vim, tmux |
+| `macos/` | every Mac | Homebrew, dev toolchains |
 | `arch/` | every Arch machine | sway desktop |
-| `host-thinkpad/` | the ThinkPad | monitors, touchpad, kitty, media apps |
-| `host-macbookpro-home/` | the home MacBook Pro | game dev tools |
-| `profiles/` | | which folders each machine gets |
+| `host-thinkpad/` | my ThinkPad | touchpad, media apps |
+| `host-macbookpro-home/` | my personal MacBook Pro | game dev tools |
+| `profiles/` | | which packages each machine gets |
 
-Each folder mirrors `~`, so `common/.vimrc` is installed as `~/.vimrc`. Everything
-is listed in [What's included](#whats-included).
+Files in each package are linked to the same path under `~`, so
+`common/.vimrc` becomes `~/.vimrc`. The full list of configs is in
+[What's included](#whats-included).
+
+## Requirements
+- **macOS**
+  - [Homebrew](https://brew.sh)
+  - GNU Stow and tmux: `brew install stow tmux`
+- **Arch**
+  - `pacman -S git stow zsh vim tmux`
+- **zsh as your login shell**: already the default on macOS. On Arch,
+  `chsh -s /usr/bin/zsh`
+- **A [Nerd Font](https://www.nerdfonts.com)** set in your terminal, for
+  vim-devicons' file icons
+
+`install.sh` links config; it doesn't install apps. Config for an app you
+don't have is linked but never read, and shell setup for a missing tool (nvm,
+pyenv, Colima, …) is skipped.
 
 ## Install
 
-1. Install the prerequisites:
-   - **macOS**: [Homebrew](https://brew.sh), then `brew install stow`
-   - **Arch**: `pacman -S git stow zsh vim tmux`
-2. Clone it anywhere and install your machine's profile:
+Clone the repo anywhere and install your machine's profile
+(`./install.sh --help` lists them):
 
-   ```sh
-   git clone https://github.com/vchadha/dotfiles ~/Developer/dotfiles
-   cd ~/Developer/dotfiles
-   ./install.sh thinkpad      # or macbookpro-home; --help lists them all
-   ```
+```sh
+git clone https://github.com/vchadha/dotfiles ~/Developer/dotfiles
+cd ~/Developer/dotfiles
+./install.sh thinkpad
+```
 
-3. If zsh isn't already your shell: `chsh -s "$(command -v zsh)"`
-4. vim-devicons needs a [Nerd Font](https://www.nerdfonts.com) set in your terminal.
-
-### Options
+### Flags
 
 Stow won't overwrite real files. If any file `install.sh` wants to link already
-exists, it lists the conflicts and changes nothing. Rerun with an option to
+exists, it lists the conflicts and changes nothing. Rerun with a flag to
 resolve them:
 
-| Command | What it does | Use it when |
+| Flag | What it does | Use it when |
 |---|---|---|
-| `./install.sh <profile>` | Links everything, or lists conflicts and stops | Always start here |
-| `./install.sh --backup <profile>` | Moves existing files to `~/.dotfiles-backup/<timestamp>/`, then links | New machine; the repo should win |
-| `./install.sh --adopt <profile>` | Moves existing files *into the repo*, then links. `git diff` shows how the machine differed. Keep hunks with `git add -p`, drop them with `git restore -p` | The machine has edits worth merging. Needs a clean working tree, since git is the undo |
-| `./install.sh --help` | Prints usage and the list of profiles | |
+| (none) | Links everything, or lists conflicts and stops | Always start here |
+| `--backup` | Moves existing files to `~/.dotfiles-backup/<timestamp>/`, then links | New machine setup |
+| `--adopt` | Moves existing files *into the repo*, then links. Review with `git diff` | The machine has edits worth keeping |
+| `--help` | Prints usage and the list of profiles | |
 
-## Day to day
+`--adopt` needs a clean working tree, since git is the undo. `git add -p` steps
+through each change so you can keep the ones you want, and `git restore -p`
+drops the rest.
+
+## Making changes
 
 Installed files are symlinks into this repo, so editing `~/.zshrc` *is* editing
 `common/.zshrc`. `dots` runs git in the repo from anywhere:
@@ -59,16 +74,18 @@ Installed files are symlinks into this repo, so editing `~/.zshrc` *is* editing
 dots status
 dots diff
 dots commit -am "..."
-dots pull && ./install.sh <profile>   # bring another machine up to date
+dots pull && ./install.sh <profile>   # get changes made on your other machines
 ```
 
-Re-running `install.sh` is safe. It picks up new files (e.g. after a plugin
-update) and prunes links to deleted ones.
+Re-running `install.sh` is safe. It links new files (e.g. after a plugin
+update) and removes links to files deleted from the repo. If you delete a
+whole folder from a package, though, its links stay behind in `~`, broken.
+Delete those by hand.
 
-There are three ways a change can bypass git:
+There are two ways a change can bypass git:
 
 - **An app creates a new config file.** It's a real file in `~`, not in the
-  repo. To track it, move it into the right folder and re-run `install.sh`:
+  repo. To track it, move it into the right package and re-run `install.sh`:
 
   ```sh
   mv ~/.config/foo/new.conf common/.config/foo/
@@ -78,70 +95,56 @@ There are three ways a change can bypass git:
 - **A program replaces a symlink with a regular file.** This happens with
   programs that save by writing a new file and renaming it over the old one.
   From then on, edits to that file stop reaching the repo.
-  - vim (`'backupcopy'` defaults to `auto`) and macOS `sed -i` both leave
-    links intact.
-  - **To catch it,** re-run `./install.sh <profile>`. A link that became a real
-    file shows up as a conflict, and nothing changes. `./install.sh --adopt
-    <profile>` then pulls it back into the repo, and `dots diff` shows what
-    changed meanwhile.
 
-- **Installers append to your shell config.** See [Gotchas](#gotchas).
+  To find these, re-run `./install.sh <profile>`. It reports each one as a
+  conflict and changes nothing. Then `./install.sh --adopt <profile>` moves the
+  files back into the repo, and `dots diff` shows what changed.
+
+### Installers that edit your shell config
+
+nvm, bun, opam and the like add lines to `~/.zshrc`, which is `common/.zshrc`
+in this repo, so every machine would get them. They show up in `dots status`.
+Move them into `macos/`, the host package, or `local/`.
 
 ## What's included
 
 ### `common/` (every machine)
 
-- **zsh**: prompt with git branch (yellow when dirty) and command timing,
-  shared history, case-insensitive completion menu. Plugins:
-  [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) and
-  sudo (<kbd>Esc</kbd> <kbd>Esc</kbd> prefixes the line with `sudo`).
-- **bash and sh**: same environment and functions as zsh, via `~/.shell/`.
-- **Functions**:
-  - `dots`: git for this repo
-  - `lookup` (and the `blookup`, `pblookup`, `pplookup` variants): grep files matching a name
-  - `scratch`: shell in a temp dir that's deleted on exit
-  - `subtree` (zsh): pruned `tree`
-  - `append_path`, `prepend_path`
-- **vim**: [NERDTree](https://github.com/preservim/nerdtree) (+
-  [git plugin](https://github.com/Xuyuanp/nerdtree-git-plugin)),
+- **zsh**: git-aware prompt, shared history, completion,
+  [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions), sudo plugin
+- **bash and sh**: same environment and functions as zsh
+- **Functions**: `dots`, `lookup`, `scratch`, `subtree`, `append_path`, `prepend_path`
+- **vim**: [NERDTree](https://github.com/preservim/nerdtree),
   [vim-devicons](https://github.com/ryanoasis/vim-devicons),
   [tcomment](https://github.com/tomtom/tcomment_vim),
-  [goyo](https://github.com/junegunn/goyo.vim).
-- **tmux**: prefix <kbd>Ctrl</kbd>+<kbd>a</kbd>, mouse on, copy to the system
-  clipboard (the OS folder sets which tool).
-- **[gotop](https://github.com/xxxserxxx/gotop)**: config and layout.
+  [goyo](https://github.com/junegunn/goyo.vim)
+- **tmux**
+- **[gotop](https://github.com/xxxserxxx/gotop)**
 
 ### `macos/` (every Mac)
 
-- **Homebrew** environment
-- **Toolchains**, each skipped if not installed: Rust, Lean (elan), Bun, .NET,
-  nvm, pyenv, opam, SDKMAN, VS Code's `code`
-- **[Colima](https://github.com/abiosoft/colima)** as the Docker runtime (`DOCKER_HOST`)
-- **`og`**: open the repo's remote in the browser
-- tmux copies with `pbcopy`. gotop config is linked into
-  `~/Library/Application Support/gotop/`, where macOS gotop looks for it
+- **Homebrew**
+- **Toolchains**: Rust, Lean, Bun, .NET, nvm, pyenv, opam, SDKMAN, VS Code CLI
+- **[Colima](https://github.com/abiosoft/colima)** as the Docker runtime
+- **Functions**: `og`
 
 ### `arch/` (every Arch machine)
 
 - **Desktop**: [sway](https://github.com/swaywm/sway),
-  [waybar](https://github.com/Alexays/Waybar) (with a media player module),
-  [mako](https://github.com/emersion/mako) notifications,
-  [rofi](https://github.com/davatorium/rofi) launcher, GTK 3 settings,
-  wallpaper and lock screen images
-- **Scripts** in `~/.local/bin/scripts/`: lock, idle (lock after 5 min, screen off
-  after 10), rofi power menu, slideshow
-- **ssh-agent**, started once and shared by every shell
-- **Functions**: `update_mirrors` (ranks pacman mirrors), `rsteam`
-- tmux copies with `wl-copy`
+  [waybar](https://github.com/Alexays/Waybar),
+  [mako](https://github.com/emersion/mako),
+  [rofi](https://github.com/davatorium/rofi), GTK 3
+- **Scripts**: lock, idle, power menu, slideshow
+- **ssh-agent**
+- **Functions**: `update_mirrors`, `rsteam`
 
 ### `host-thinkpad/`
 
-- **sway `host.conf`**: laptop and 4K monitor layout, lid-close turns off
-  the laptop screen, touchpad tap and natural scroll
-- **[kitty](https://github.com/kovidgoyal/kitty)** terminal
-- **[mpd](https://www.musicpd.org) + [ncmpcpp](https://github.com/ncmpcpp/ncmpcpp)** music
-- **[zathura](https://github.com/pwmt/zathura)** PDF viewer
-- `bg_changer.sh` (random wallpaper), `battery_status`
+- **sway**: monitors, touchpad
+- **[kitty](https://github.com/kovidgoyal/kitty)**,
+  **[mpd](https://www.musicpd.org) + [ncmpcpp](https://github.com/ncmpcpp/ncmpcpp)**,
+  **[zathura](https://github.com/pwmt/zathura)**
+- **Extras**: `bg_changer.sh` script, `battery_status` alias
 
 ### `host-macbookpro-home/`
 
@@ -163,32 +166,31 @@ Shell config loads in layers, most general first: `common`, then
   export AWS_ACCESS_KEY_ID=...
   ```
 
-The same idea applies outside the shell. tmux sources `~/.tmux.clipboard.conf`
-from the OS folder, and sway includes `~/.config/sway/host.conf` from the host
-folder. **Every sway machine needs a `host.conf`.**
+Two other configs are split the same way. Both are optional; if one is
+missing, the app silently uses its defaults.
+
+- `~/.tmux.clipboard.conf`, from the OS package: which tool tmux copies to
+- `~/.config/sway/host.conf`, from the host package: monitors and input devices
 
 ## Adding a machine
 
-A profile is a file in `profiles/` named after the machine, listing the folders
-it gets on one line:
+1. Add `profiles/<name>`, listing the packages the machine gets on one line:
 
-```sh
-$ cat profiles/macbookpro-home
-common macos host-macbookpro-home
-```
+   ```sh
+   $ cat profiles/macbookpro-home
+   common macos host-macbookpro-home
+   ```
 
-- **Another Mac or Arch box:** add `profiles/<name>` (e.g. `common macos`). Add a
-  `host-<name>/` folder only if it needs something the others don't.
-- **A new OS (e.g. Debian):** add a `<os>/` folder that provides
-  `.shell/os/{env,interactive}` and `.tmux.clipboard.conf`. If it's headless,
-  that's the time to split sway out of `arch/` into its own folder.
+2. If the machine needs something no other machine does, add a
+   `host-<name>/` package and list it in the profile.
+3. If it runs a new OS (e.g. Debian), add a `<os>/` package with
+   `.shell/os/{env,interactive}`, plus `.tmux.clipboard.conf` if you want tmux
+   to copy to the clipboard.
 
-Either way, add it to [What's included](#whats-included).
+   `arch/` holds both Arch-specific shell setup and the sway desktop. If the
+   new machine wants one without the other, like a headless server or a
+   Debian box running sway, move sway into its own `sway/` package first.
+4. Add it to [What's included](#whats-included).
 
-## Gotchas
-
-- **Installers that append to `~/.zshrc` (nvm, bun, opam, …)** are now editing
-  `common/.zshrc` in this repo through the symlink. It shows up in `git status`.
-  Move the lines into `macos/`, the host folder, or `local/`.
-- **Two folders can't own the same file.** That's what stops `macos` and
-  `arch` from being installed together.
+Two packages in one profile can't contain the same file; Stow refuses to
+install it. This prevents `macos` and `arch` from being installed together.
