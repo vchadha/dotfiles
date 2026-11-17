@@ -6,6 +6,10 @@ typeset -U PATH path fpath
 # Source shell env
 source $HOME/.shell/env
 
+# Our own completion functions (_dots). On fpath here because compinit in
+# .zshrc only picks up folders already listed when it runs.
+fpath=($HOME/.zsh/completions $fpath)
+
 # zsh-only overlays (e.g. fpath entries, which must exist before compinit
 # runs in .zshrc)
 for __layer in os host local; do

@@ -65,6 +65,9 @@ resolve them:
 through each change so you can keep the ones you want, and `git restore -p`
 drops the rest.
 
+Once installed, <kbd>Tab</kbd> in zsh completes the flags and profile names,
+for both `./install.sh` and `dots install`.
+
 ## Making changes
 
 Installed files are symlinks into this repo, so editing `~/.zshrc` *is* editing

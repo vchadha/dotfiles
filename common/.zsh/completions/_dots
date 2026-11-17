@@ -1,0 +1,43 @@
+#compdef dots install.sh
+
+# Tab completion for the dotfiles installer (./install.sh) and for dots,
+# which is git in the dotfiles repo plus `dots install`.
+
+# Same lookup as the dots function: ~/.zshrc links to <repo>/common/.zshrc
+local repo=${${:-$HOME/.zshrc}:A:h:h}
+
+_dotfiles_install() {
+    # Joined into one string up front: a split array inside the spec below
+    # would turn into one "1:profile:" rule per profile, and _arguments
+    # refuses duplicate rules
+    local -a profiles=(${(f)"$(command ls $repo/profiles)"})
+    _arguments -s \
+        '(--adopt -h --help)--backup[move existing files to ~/.dotfiles-backup, then link]' \
+        '(--backup -h --help)--adopt[move existing files into the repo, then link]' \
+        '(- 1)'{-h,--help}'[show usage and profiles]' \
+        "1:profile:(${profiles[*]})"
+}
+
+case $service in
+    install.sh)
+        _dotfiles_install
+        ;;
+    dots)
+        if [[ $words[2] == install ]] && (( CURRENT > 2 )); then
+            # Drop "dots" so `install` sits where install.sh's name would
+            shift words
+            (( CURRENT-- ))
+            _dotfiles_install
+        else
+            # Anything else is git: offer install alongside git's own
+            # subcommands. Paths complete from the current folder, not the repo.
+            if (( CURRENT == 2 )); then
+                local -a dots_cmds=('install:link a profile with install.sh')
+                _describe -t dots-commands 'dots command' dots_cmds
+            fi
+            words[1]=git
+            service=git
+            _git
+        fi
+        ;;
+esac
