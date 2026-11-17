@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# From Waybar's resources/custom_modules (MIT licence, see LICENSES/waybar.txt
+# in the repo), with a changed track label.
 import argparse
 import logging
 import sys

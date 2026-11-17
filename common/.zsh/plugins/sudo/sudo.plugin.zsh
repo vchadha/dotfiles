@@ -1,3 +1,5 @@
+# From oh-my-zsh (MIT licence, see LICENSES/oh-my-zsh.txt in the repo)
+
 # ------------------------------------------------------------------------------
 # Description
 # -----------

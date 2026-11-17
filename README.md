@@ -1,6 +1,4 @@
-# . dotfiles
-
-System Configuration Files
+# dotfiles
 
 My shell and app configs for my machines. Each top-level folder is a Stow
 *package*: `common/` holds settings shared by every machine, and each machine
@@ -16,22 +14,23 @@ with [GNU Stow](https://www.gnu.org/software/stow/).
 | `arch/` | every Arch machine | sway desktop |
 | `host-thinkpad/` | my ThinkPad | touchpad, media apps |
 | `host-macbookpro-home/` | my personal MacBook Pro | game dev tools |
-| `profiles/` | | which packages each machine gets |
 
-Files in each package are linked to the same path under `~`, so
-`common/.vimrc` becomes `~/.vimrc`. The full list of configs is in
-[What's included](#whats-included).
+`profiles/` lists which packages each machine gets. Files in each package are
+linked to the same path under `~`, so `common/.vimrc` becomes `~/.vimrc`. The
+full list of configs is in [What's included](#whats-included).
 
 ## Requirements
+
 - **macOS**
+  - git: `xcode-select --install` (Homebrew's installer also does this)
   - [Homebrew](https://brew.sh)
   - GNU Stow and tmux: `brew install stow tmux`
 - **Arch**
   - `pacman -S git stow zsh vim tmux`
 - **zsh as your login shell**: already the default on macOS. On Arch,
   `chsh -s /usr/bin/zsh`
-- **A [Nerd Font](https://www.nerdfonts.com)** set in your terminal, for
-  vim-devicons' file icons
+- **A [Nerd Font](https://www.nerdfonts.com)** set in your terminal, for the
+  icons in vim, tmux's status bar and Waybar
 
 `install.sh` links config; it doesn't install apps. Config for an app you
 don't have is linked but never read, and shell setup for a missing tool (nvm,
@@ -40,12 +39,13 @@ uv, Colima, …) is skipped.
 ## Install
 
 Clone the repo anywhere and install your machine's profile
-(`./install.sh --help` lists them):
+(`./install.sh --help` lists them). On a Mac with nothing extra, that's
+`macbookpro-work`:
 
 ```sh
 git clone https://github.com/vchadha/dotfiles ~/Developer/dotfiles
 cd ~/Developer/dotfiles
-./install.sh thinkpad
+./install.sh <profile>
 ```
 
 ### Flags
@@ -56,8 +56,8 @@ resolve them:
 
 | Flag | What it does | Use it when |
 |---|---|---|
-| (none) | Links everything, or lists conflicts and stops | Always start here |
-| `--backup` | Moves existing files to `~/.dotfiles-backup/<timestamp>/`, then links | New machine setup |
+| (none) | Links everything, or lists conflicts and stops | Try this first |
+| `--backup` | Moves existing files to `~/.dotfiles-backup/<timestamp>/`, then links | The existing files can go |
 | `--adopt` | Moves existing files *into the repo*, then links. Review with `git diff` | The machine has edits worth keeping |
 | `--help` | Prints usage and the list of profiles | |
 
@@ -67,6 +67,40 @@ drops the rest.
 
 Once installed, <kbd>Tab</kbd> in zsh completes the flags and profile names,
 for both `./install.sh` and `dots install`.
+
+### Uninstall
+
+From the repo, remove the links (list the packages from your profile), then
+copy back a backup if you made one:
+
+```sh
+stow -D common macos
+cp -R ~/.dotfiles-backup/<timestamp>/. ~
+```
+
+## Where settings go
+
+Shell config loads in layers, most general first: `common`, then `os/`,
+`host/` and `local/`.
+
+- **`os/`** comes from `macos/` or `arch/`: things true of every machine of that kind.
+- **`host/`** comes from `host-<machine>/`: things only that machine has.
+- **`local/`** is **never tracked**: secrets and one-off tweaks.
+
+Each layer has two files in `~/.shell/<layer>/` (zsh-only bits go in
+`~/.zsh/<layer>/`):
+
+- **`env`**: environment variables and `PATH`. Every shell reads it, scripts
+  included, so it must be plain `sh` and print nothing.
+- **`interactive`**: aliases, functions, completions, slow tool setup.
+  Terminals only.
+
+For example, to use a different editor on one machine, put this in
+`~/.shell/local/env`:
+
+```sh
+export EDITOR=nano
+```
 
 ## Making changes
 
@@ -84,7 +118,10 @@ dots pull && dots install <profile>   # get upstream changes
 Re-running `dots install` is safe. It links new files (e.g. after a plugin
 update) and removes links to files deleted from the repo. If you delete a
 whole folder from a package, though, its links stay behind in `~`, broken.
-Delete those by hand.
+Delete those by hand; `find -L ~/.config -type l` lists broken links.
+
+If a change affects something the [wiki](https://github.com/vchadha/dotfiles/wiki)
+describes, update it too.
 
 There are two ways a change can bypass git:
 
@@ -108,7 +145,8 @@ There are two ways a change can bypass git:
 
 nvm, bun, opam and the like add lines to `~/.zshrc`, which is `common/.zshrc`
 in this repo, so every machine would get them. They show up in `dots status`.
-Move them into `macos/`, the host package, or `local/`.
+Move them into the right layer's file (see [Where settings go](#where-settings-go)),
+e.g. `macos/.shell/os/env` or `~/.shell/local/interactive`.
 
 ## What's included
 
@@ -119,8 +157,10 @@ has the details, keybindings included.
 
 - **zsh**: git-aware prompt, shared history, completion,
   [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions), sudo plugin
-- **bash and sh**: same environment and functions as zsh
-- **Functions**: `dots`, `lookup`, `scratch`, `subtree`, `append_path`, `prepend_path`
+- **bash**: same environment and functions as zsh, minus the zsh-only ones;
+  **sh** gets the environment only
+- **Functions**: `dots`, `lookup`, `scratch`, `subtree` (needs `tree`),
+  `append_path`, `prepend_path`
 - **[uv](https://docs.astral.sh/uv/)** completion, for Python versions and environments
 - **vim**: [NERDTree](https://github.com/preservim/nerdtree),
   [vim-devicons](https://github.com/ryanoasis/vim-devicons),
@@ -158,22 +198,6 @@ has the details, keybindings included.
 
 - Playdate SDK, nom, Unity CLI
 
-## Machine-specific settings
-
-Shell config loads in layers, most general first: `common`, then
-`~/.shell/os/`, then `~/.shell/host/`, then `~/.shell/local/`, with `env` and
-`interactive` files at each level (zsh-only bits go under `~/.zsh/os|host|local/`).
-
-- **`os/`** comes from `macos/` or `arch/`. It holds things true of every machine of that kind.
-- **`host/`** comes from `host-<machine>/`. It holds hardware details and tools only that machine has.
-- **`local/`** is **never tracked**. Put secrets, credentials, and one-off tweaks here.
-
-  For example, `~/.shell/local/env`:
-
-  ```sh
-  export AWS_ACCESS_KEY_ID=...
-  ```
-
 ## Adding a machine
 
 1. Add `profiles/<name>`, listing the packages the machine gets on one line:
@@ -187,10 +211,10 @@ Shell config loads in layers, most general first: `common`, then
    `host-<name>/` package and list it in the profile.
 3. If it runs a new OS (e.g. Debian), add a `<os>/` package with
    `.shell/os/{env,interactive}`.
-4. Add it to [What's included](#whats-included).
+4. Add it to [What's included](#whats-included) and the wiki's Features page.
 
 Two packages in one profile can't contain the same file; Stow refuses to
-install it. This prevents `macos` and `arch` from being installed together.
+install it. That also stops `macos` and `arch` from going in one profile.
 
 ## Tests
 
@@ -210,12 +234,17 @@ that suite's totals.
 |---|---|
 | `test-install-args.sh` | How `install.sh` handles what people type: flags in any order, `--help` next to mistakes, bad profile names |
 | `test-install-behavior.sh` | What it does to a home folder: conflicts, `--backup`, `--adopt`, re-runs, every profile linking cleanly |
-| `test-startup.sh` | Each profile for this OS, in a fresh home: zsh, bash and sh start without errors or output in every mode, with env loaded, Homebrew first, `~/.local/bin` present but after `/usr/bin`, and no duplicate `PATH` entries; vim and tmux load their configs |
-| `test-lint.sh` | Shell syntax in every shell that reads a file, the Waybar config parses, no icons from retired Nerd Font codepoints, scripts stay executable, `.gitignore` still catches credentials |
+| `test-startup.sh` | Each profile for this OS, in a fresh home: every shell starts without errors or output, with the right `PATH`; zsh's keys and git prompt, vim and tmux work as documented |
+| `test-lint.sh` | Shell syntax in every shell that reads a file, the Waybar config parses, no retired Nerd Font icons, only scripts are executable, `.gitignore` still catches credentials |
 
 The startup suite only covers the profiles for the OS it runs on.
 
 ## Credits
 
 Inspired by and stolen from many creative and amazing people whose names will
-one day be listed here.
+one day be listed here. Borrowed files:
+
+- `common/.zsh/plugins/sudo/` is from [oh-my-zsh](https://github.com/ohmyzsh/ohmyzsh)
+- `arch/.config/waybar/modules/mediaplayer.py` is from [Waybar](https://github.com/Alexays/Waybar)
+
+Both are MIT-licensed; the licences are in `LICENSES/`.
