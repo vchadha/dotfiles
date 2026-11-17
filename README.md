@@ -74,7 +74,7 @@ Installed files are symlinks into this repo, so editing `~/.zshrc` *is* editing
 dots status
 dots diff
 dots commit -am "..."
-dots pull && ./install.sh <profile>   # get changes made on your other machines
+dots pull && ./install.sh <profile>   # get upstream changes
 ```
 
 Re-running `install.sh` is safe. It links new files (e.g. after a plugin
@@ -169,12 +169,6 @@ Shell config loads in layers, most general first: `common`, then
   export AWS_ACCESS_KEY_ID=...
   ```
 
-Two other configs are split the same way. Both are optional; if one is
-missing, the app silently uses its defaults.
-
-- `~/.tmux.clipboard.conf`, from the OS package: which tool tmux copies to
-- `~/.config/sway/host.conf`, from the host package: monitors and input devices
-
 ## Adding a machine
 
 1. Add `profiles/<name>`, listing the packages the machine gets on one line:
@@ -187,13 +181,13 @@ missing, the app silently uses its defaults.
 2. If the machine needs something no other machine does, add a
    `host-<name>/` package and list it in the profile.
 3. If it runs a new OS (e.g. Debian), add a `<os>/` package with
-   `.shell/os/{env,interactive}`, plus `.tmux.clipboard.conf` if you want tmux
-   to copy to the clipboard.
-
-   `arch/` holds both Arch-specific shell setup and the sway desktop. If the
-   new machine wants one without the other, like a headless server or a
-   Debian box running sway, move sway into its own `sway/` package first.
+   `.shell/os/{env,interactive}`.
 4. Add it to [What's included](#whats-included).
 
 Two packages in one profile can't contain the same file; Stow refuses to
 install it. This prevents `macos` and `arch` from being installed together.
+
+## Credits
+
+Inspired by and stolen from many creative and amazing people whose names will
+one day be listed here.
