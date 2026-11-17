@@ -19,8 +19,7 @@ with [GNU Stow](https://www.gnu.org/software/stow/).
 linked to the same path under `~`, so `common/.vimrc` becomes `~/.vimrc`. The
 full list of configs is in [What's included](#whats-included).
 
-`hooks/pre-commit`, turned on by `install.sh`, refuses to commit anything
-`.gitignore` lists as a likely secret, or anything shaped like a key or token.
+`hooks/pre-commit` stops you from committing secrets. `install.sh` turns it on.
 
 ## Requirements
 
@@ -64,9 +63,8 @@ resolve them:
 | `--adopt` | Moves existing files *into the repo*, then links. Review with `git diff` | The machine has edits worth keeping |
 | `--help` | Prints usage and the list of profiles | |
 
-`--adopt` needs a clean working tree, since git is the undo. `git add -p` steps
-through each change so you can keep the ones you want, and `git restore -p`
-drops the rest.
+`--adopt` needs a clean working tree, because git is how you undo it. Then
+`git add -p` keeps the changes you want and `git restore -p` drops the rest.
 
 Once installed, <kbd>Tab</kbd> in zsh completes the flags and profile names,
 for both `./install.sh` and `dots install`.
@@ -90,15 +88,15 @@ Shell config loads in layers, most general first: `common`, then `os/`,
 - **`local/`** is **never tracked**: secrets and one-off tweaks. Put a token
   in `local/env` if scripts need it, `local/interactive` if only your terminal does.
 
-Each layer has two files in `~/.shell/<layer>/` (zsh-only bits go in
-`~/.zsh/<layer>/`):
+Each layer has two files, in `~/.shell/` for `common` and `~/.shell/<layer>/`
+for the rest (zsh-only bits go in `~/.zsh/` the same way):
 
 - **`env`**: environment variables and `PATH`. Every shell reads it, scripts
   included, so it must be plain `sh` and print nothing.
 - **`interactive`**: aliases, functions, completions, slow tool setup.
   Terminals only.
 
-For example, the editor is vim; to use a different one on one machine, put this in
+The editor is vim. To use a different one on one machine, put this in
 `~/.shell/local/env`:
 
 ```sh
@@ -118,11 +116,10 @@ dots commit -am "..."
 dots pull && dots install <profile>   # get upstream changes
 ```
 
-Re-running `dots install` is safe. It links new files (e.g. after a plugin
-update) and removes links to files deleted from the repo. If you delete a
-whole folder from a package, though, its links stay behind in `~`, broken.
-Delete those by hand; `find -L <folder> -type l` lists the broken links under
-a folder, e.g. `~/.vim/pack`.
+Re-running `dots install` is safe. It links new files and removes links to
+deleted ones. The exception is a deleted *folder*: its links stay behind,
+broken, and you delete them by hand. `find -L ~/.vim/pack -type l` lists the
+broken links in a folder.
 
 If a change affects something the [wiki](https://github.com/vchadha/dotfiles/wiki)
 describes, update it too.
@@ -227,13 +224,12 @@ install it. That also stops `macos` and `arch` from going in one profile.
 tests/run.sh
 ```
 
-Runs every suite, each against throwaway home folders, so your own is never
-touched. Takes about 15 seconds; run it before pushing. Works from any folder,
-and each suite also runs on its own, e.g. `tests/test-lint.sh`.
+Run it before pushing; it takes about 15 seconds. The tests use throwaway
+home folders, so your own is never touched. Each suite also runs on its own,
+e.g. `tests/test-lint.sh`.
 
-Needs `git`, `stow`, `zsh` and `python3`. `dash`, `vim` and `tmux` are
-optional: without one, its checks are skipped, and listed as skipped under
-that suite's totals.
+The tests need `git`, `stow`, `zsh` and `python3`. If `dash`, `vim` or `tmux`
+is missing, its checks are skipped and listed as skipped.
 
 | Suite | Checks |
 |---|---|
