@@ -1,43 +1,22 @@
 #!/bin/sh
 #
-# Tests for how install.sh handles what people type. Each case runs the real
-# script against a throwaway $HOME, so nothing touches yours.
+# How install.sh handles what people type: flags in any order, --help next
+# to mistakes, bad profile names. Each case runs the real script against a
+# throwaway $HOME, so nothing touches yours.
 #
-#   tests/install-args.sh
-#
-set -u
+. "$(dirname "$0")/lib.sh"
 
-REPO=$(cd "$(dirname "$0")/.." && pwd -P)
-tmp=$(mktemp -d)
 scratch_profile="$REPO/profiles/zz-test-empty-$$"
-trap 'rm -rf "$tmp"; rm -f "$scratch_profile"' EXIT
+cleanup() { rm -f "$scratch_profile"; }
 
-passes=0
-fails=0
-
-# Runs install.sh with the given arguments; sets $home, $code, and fills
-# $tmp/out and $tmp/err.
+# Runs install.sh with the given arguments in a fresh $home; sets $code and
+# fills $tmp/out and $tmp/err.
 run() {
     home=$(mktemp -d "$tmp/home.XXXXXX")
     HOME=$home "$REPO/install.sh" "$@" > "$tmp/out" 2> "$tmp/err"
     code=$?
 }
 
-# expect <test name> <shell condition>
-expect() {
-    if eval "$2"; then
-        passes=$((passes + 1))
-    else
-        fails=$((fails + 1))
-        echo "FAIL: $1"
-        echo "  condition: $2  (exit was $code)"
-        sed 's/^/  stdout: /' "$tmp/out" | head -3
-        sed 's/^/  stderr: /' "$tmp/err" | head -3
-    fi
-}
-
-out_has() { grep -q -- "$1" "$tmp/out"; }
-err_has() { grep -q -- "$1" "$tmp/err"; }
 nothing_installed() { [ -z "$(ls -A "$home")" ]; }
 
 run thinkpad --help
@@ -91,5 +70,4 @@ run "$(basename "$scratch_profile")"
 expect empty_profile_fails_loud \
     '[ $code -eq 1 ] && err_has "doesn.t list any packages" && nothing_installed'
 
-echo "$passes passed, $fails failed"
-[ "$fails" -eq 0 ]
+summary

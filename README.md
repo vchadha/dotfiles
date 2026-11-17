@@ -194,9 +194,21 @@ install it. This prevents `macos` and `arch` from being installed together.
 
 ## Tests
 
-`tests/install-args.sh` checks how `install.sh` handles what people type
-(flags in any order, `--help` next to mistakes, bad profile names), each case
-against a throwaway home folder. Run it after changing `install.sh`.
+```sh
+tests/run.sh
+```
+
+Runs every suite, each against throwaway home folders, so your own is never
+touched. Takes a few seconds; run it before pushing.
+
+| Suite | Checks |
+|---|---|
+| `test-install-args.sh` | How `install.sh` handles what people type: flags in any order, `--help` next to mistakes, bad profile names |
+| `test-install-behavior.sh` | What it does to a home folder: conflicts, `--backup`, `--adopt`, re-runs, every profile linking cleanly |
+| `test-startup.sh` | Each profile for this OS, in a fresh home: zsh, bash and sh start without errors or output in every mode, with env loaded, Homebrew first and no duplicate `PATH` entries; vim and tmux load their configs |
+| `test-lint.sh` | Shell syntax in every shell that reads a file, the Waybar config parses, no icons from retired Nerd Font codepoints, scripts stay executable, `.gitignore` still catches credentials |
+
+The startup suite only covers the profiles for the OS it runs on.
 
 ## Credits
 
