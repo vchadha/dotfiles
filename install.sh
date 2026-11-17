@@ -63,16 +63,21 @@ git submodule update --init
 # $HOME wherever the repo lives, and without --no-folding a missing
 # directory like ~/.config would become one big symlink into this repo.
 # --restow makes re-runs prune links to files that have since been deleted
-# (e.g. after a submodule update).
+# (e.g. after a submodule update) -- but only inside folders the package
+# still has; Stow never visits a folder that's gone, so its links are left.
+#
+# Finder drops .DS_Store into any folder it opens; Stow's defaults don't skip
+# it, so it would get linked into ~. Adds to Stow's default ignore list rather
+# than replacing it.
 run_stow() {
-    stow --dir="$DOTFILES" --target="$HOME" --no-folding --restow "$@"
+    stow --dir="$DOTFILES" --target="$HOME" --no-folding --ignore='\.DS_Store' --restow "$@"
 }
 
 case $mode in
 backup)
     backup="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
     for pkg in $packages; do
-        (cd "$pkg" && find . \( -name .git -o -name .gitignore -o -name .gitmodules \) -prune \
+        (cd "$pkg" && find . \( -name .git -o -name .gitignore -o -name .gitmodules -o -name .DS_Store \) -prune \
             -o \( -type f -o -type l \) -print) |
         while IFS= read -r f; do
             f=${f#./}

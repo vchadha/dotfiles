@@ -1,0 +1,6 @@
+.DS_Store
+
+# The local shell layer holds secrets and lives only in ~, never in a package.
+# Ignored in case one gets created here by mistake.
+/*/.shell/local/
+/*/.zsh/local/
