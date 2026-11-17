@@ -188,6 +188,12 @@ Shell config loads in layers, most general first: `common`, then
 Two packages in one profile can't contain the same file; Stow refuses to
 install it. This prevents `macos` and `arch` from being installed together.
 
+## Tests
+
+`tests/install-args.sh` checks how `install.sh` handles what people type
+(flags in any order, `--help` next to mistakes, bad profile names), each case
+against a throwaway home folder. Run it after changing `install.sh`.
+
 ## Credits
 
 Inspired by and stolen from many creative and amazing people whose names will

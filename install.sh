@@ -16,7 +16,8 @@ help() {
     cat <<EOF
 usage: $0 [--backup | --adopt] <profile>
 
-Symlinks the packages listed in profiles/<profile> into \$HOME.
+Symlinks the packages listed in profiles/<profile> into \$HOME. Options can
+go before or after the profile.
 
   (no option)  link everything; if any file already exists, list the
                conflicts and change nothing
@@ -31,28 +32,54 @@ $(ls profiles | sed 's/^/  /')
 EOF
 }
 
-# Mistakes go to stderr with exit 2; --help asked for it, so stdout and 0
+# Mistakes go to stderr with exit 2, saying what was wrong first; --help asked
+# for it, so stdout and 0
 usage_error() {
-    [ $# -eq 0 ] || echo "install.sh: $*" >&2
+    printf 'install.sh: %s\n\n' "$*" >&2
     help >&2
     exit 2
 }
 
+# --help anywhere wins, even next to a typo, and never installs anything.
+# Its own pass so nothing below can act first.
+for arg in "$@"; do
+    case $arg in
+        -h|--help) help; exit 0 ;;
+    esac
+done
+
 mode=check
-case "${1:-}" in
-    --backup)  mode=backup; shift ;;
-    --adopt)   mode=adopt;  shift ;;
-    -h|--help) help; exit 0 ;;
-    -*)        usage_error "unknown option: $1" ;;
+profile=
+for arg in "$@"; do
+    case $arg in
+        --backup|--adopt)
+            if [ "$mode" != check ] && [ "$mode" != "${arg#--}" ]; then
+                usage_error "--backup and --adopt can't be used together"
+            fi
+            mode=${arg#--}
+            ;;
+        -*)
+            usage_error "unknown option: $arg"
+            ;;
+        *)
+            [ -z "$profile" ] || usage_error "one profile at a time (got '$profile' and '$arg')"
+            profile=$arg
+            ;;
+    esac
+done
+[ -n "$profile" ] || usage_error "no profile given"
+case $profile in
+    # Also keeps a name like ../../x from reading a file outside profiles/
+    */*) usage_error "give the profile's name, not a path (e.g. thinkpad, not $profile)" ;;
 esac
-[ $# -eq 1 ] || usage_error
-[ -f "profiles/$1" ] || usage_error "no such profile: $1"
+[ -f "profiles/$profile" ] || usage_error "no such profile: $profile"
 
 # Whitespace-separated package names; left unquoted below on purpose so the
 # shell splits them.
-packages=$(cat "profiles/$1")
+packages=$(cat "profiles/$profile")
+[ -n "$(echo $packages)" ] || die "profiles/$profile doesn't list any packages"
 for pkg in $packages; do
-    [ -d "$pkg" ] || die "profile $1 lists '$pkg', but there's no $pkg/ package"
+    [ -d "$pkg" ] || die "profile $profile lists '$pkg', but there's no $pkg/ package"
 done
 
 command -v stow > /dev/null || die "GNU Stow isn't installed (macOS: brew install stow, Arch: pacman -S stow)"
