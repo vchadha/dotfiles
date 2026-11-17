@@ -1,3 +1,8 @@
+# A shell started from another shell runs env again on top of the PATH it
+# inherited; this drops the repeats. PATH needs it as well as path, because
+# brew shellenv assigns the string form.
+typeset -U PATH path fpath
+
 # Source shell env
 source $HOME/.shell/env
 

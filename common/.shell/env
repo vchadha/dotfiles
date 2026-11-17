@@ -1,5 +1,11 @@
 # Set env
 
+# Here rather than in .zshrc so bash and non-interactive shells (scripts,
+# `ssh host cmd`) get them too. Before the overlays, so a machine can
+# override them.
+export LANG=en_US.UTF-8
+export EDITOR=vim
+
 # Machine overlays -- same layering as .shell/interactive. Runs for every
 # shell, including non-interactive ones, so overlays must stay silent.
 for __layer in os host local; do

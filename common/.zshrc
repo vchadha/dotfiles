@@ -134,12 +134,6 @@ source ~/.zsh/plugins/sudo/sudo.plugin.zsh
 bindkey '^[[A' up-line-or-search # up arrow
 bindkey '^[[B' down-line-or-search # down arrow
 
-# Language env
-export LANG=en_US.UTF-8
-
-# Preferred editor
-export EDITOR='vim'
-
 # Tab completion
 autoload -Uz compinit && compinit
 
