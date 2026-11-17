@@ -1,32 +1,57 @@
-# New files in packages are ignored by default, so nothing gets committed by
-# accident: an app folder moved in can carry tokens, history or account
-# details. Files git already tracks aren't affected. Add a new one on
-# purpose, one file at a time (-f skips these rules, so never use it on a
-# folder):
+# Files that usually hold secrets. None belong in a package, but moving a
+# whole config folder in (say ~/.config/gh) would drag them along. A pattern
+# with a slash in the middle only matches from the repo root, hence the **/.
 #
-#   dots add -f common/.config/foo/foo.conf
-#
-# hooks/pre-commit is the backstop: it refuses paths in .secret-paths.
+# `git add -f` gets past these, so hooks/pre-commit refuses to commit any
+# file that matches them (plus anything shaped like a key or token).
 
-# Ignore every file...
-*
+# The local shell layer, which holds this machine's secrets
+/*/.shell/local/
+/*/.zsh/local/
 
-# ...but not folders. With a folder ignored, `git add` on a tracked file in
-# it still stages it, but warns and exits 1, so `dots add x && ...` stops.
-!*/
+# SSH: keys, known hosts, agent state. Only the config is safe.
+**/.ssh/*
+!**/.ssh/config
 
-# The repo's own files aren't config, so new ones show up as usual
-!/.gitignore
-!/.gitmodules
-!/.ignore
-!/.secret-paths
-!/.stowrc
-!/*.md
-!/*.sh
-!/hooks/**
-!/LICENSES/**
-!/profiles/**
-!/tests/**
+# Claude Code: transcripts, memory, account details. Only CLAUDE.md is safe.
+**/.claude/*
+!**/.claude/CLAUDE.md
+.claude.json*
 
-# Finder litter, wherever it lands
+# GPG and pass
+**/.gnupg/
+**/.password-store/
+
+# Tokens written by CLIs and package managers
+**/.config/gh/hosts.yml
+**/.aws/credentials
+**/.aws/sso/cache/
+**/.aws/cli/cache/
+**/.config/gcloud/
+**/.azure/
+**/.kube/config
+**/.docker/config.json
+**/.terraform.d/credentials.tfrc.json
+**/.cargo/credentials.toml
+**/.gem/credentials
+.netrc
+.git-credentials
+.npmrc
+.pypirc
+
+# Env files and key material
+.env
+.env.*
+.envrc
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Shell and REPL history: anything ever typed or pasted, tokens included
+.*_history
+.lesshst
+.viminfo
+
+# Finder litter
 .DS_Store

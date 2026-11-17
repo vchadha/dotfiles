@@ -3,5 +3,4 @@
 # There's no interactive file: sh only reads one through $ENV, and
 # .shell/interactive is bash/zsh-only (as are nvm and SDKMAN, which the
 # macos package loads there).
-. "$HOME/.sh/env"
-. "$HOME/.sh/login"
+. "$HOME/.shell/env"

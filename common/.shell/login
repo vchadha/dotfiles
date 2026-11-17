@@ -1,3 +1,0 @@
-# Runs once per login shell. Environment variables go in .shell/env, which
-# every shell reads.
-

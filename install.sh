@@ -191,17 +191,3 @@ check)
 esac
 
 echo "stowed:" $packages
-
-# .gitignore ignores every new file in a package, so one moved in works here
-# but never reaches other machines until it's added on purpose. Secrets are
-# listed apart, so the warning never suggests adding one.
-secrets=$(git ls-files --others --ignored --exclude-from=.secret-paths -- $packages)
-if [ -n "$secrets" ]; then
-    echo "install.sh: these look like secrets; move each back to its place in ~ as a real file, don't add them:" >&2
-    printf '%s\n' "$secrets" | sed 's/^/  /' >&2
-fi
-untracked=$(git ls-files --others --exclude=.DS_Store --exclude-from=.secret-paths -- $packages)
-if [ -n "$untracked" ]; then
-    echo "install.sh: not in git yet, so other machines won't get these; add each with 'dots add -f <file>':" >&2
-    printf '%s\n' "$untracked" | sed 's/^/  /' >&2
-fi

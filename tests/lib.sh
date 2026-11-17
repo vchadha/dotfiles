@@ -37,7 +37,7 @@ expect() {
 copy_repo() {
     repo="$tmp/dots copy"
     cp -RP "$REPO" "$repo"
-    git -C "$repo" add -A -f
+    git -C "$repo" add -A
     git -C "$repo" -c user.name=test -c user.email=test@example.invalid \
         -c commit.gpgsign=false commit -q --allow-empty --no-verify -m snapshot
 }

@@ -2,7 +2,7 @@
 #
 # Static checks over the tracked files: shell syntax in every dialect that
 # reads a file, configs that parse, no retired Nerd Font icons, scripts kept
-# executable, and .gitignore still catching every new file.
+# executable, and nothing that looks like a secret can be committed.
 #
 . "$(dirname "$0")/lib.sh"
 
@@ -13,16 +13,16 @@ cd "$REPO"
 git ls-files -s | awk '$1 != "160000" { mode = $1; sub(/^[^\t]*\t/, ""); print mode " " $0 }' > "$tmp/files"
 
 # Shells that source a shebang-less config file, by its path inside the
-# package. .shell/env and login are also read by sh (via .profile), so they
-# have to stay POSIX; the rest of .shell/ is bash and zsh only.
+# package. .shell/env files are also read by sh (via .profile), so they have
+# to stay POSIX; the rest of .shell/ is bash and zsh only.
 config_dialects() {
     case $1 in
         .zsh/*.md) ;;
-        .zshrc|.zshenv|.zprofile|.zlogout|.zsh/*)            echo zsh ;;
-        .bashrc|.bash_profile|.bash_logout|.bash/*)          echo bash ;;
-        .profile|.sh/*)                                      echo sh ;;
-        .shell/env|.shell/login|.shell/*/env|.shell/*/login) echo sh bash zsh ;;
-        .shell/*)                                            echo bash zsh ;;
+        .zshrc|.zshenv|.zprofile|.zsh/*)    echo zsh ;;
+        .bashrc|.bash_profile|.bash/*)      echo bash ;;
+        .profile)                           echo sh ;;
+        .shell/env|.shell/*/env)            echo sh bash zsh ;;
+        .shell/*)                           echo bash zsh ;;
     esac
 }
 
@@ -116,34 +116,32 @@ for path in sys.stdin.read().splitlines():
 sys.exit(bad > 0)
 " > "$tmp/out" 2> "$tmp/err"'
 
-# A new file in a package needs a deliberate add, secrets least of all; the
-# repo's own files (tests, profiles, docs) show up as usual
-for new in common/.zz-new-config macos/.config/gh/hosts.yml common/.claude.json \
-    common/.ssh/id_ed25519 "macos/Library/Application Support/zz.conf" .env .envrc .zz-new
-do
-    expect "gitignore catches the new package file $new" 'git check-ignore -q "$new"'
-done
-for new in tests/zz-new.sh tests/fixtures/zz.txt profiles/zz-new hooks/zz-new LICENSES/zz.txt zz-new.md; do
-    expect "gitignore shows the new repo file $new" '! git check-ignore -q "$new"'
-done
-expect "gitignore still hides .DS_Store at the root" 'git check-ignore -q .DS_Store'
-expect "git add still works on a tracked file inside a folder" \
-    'git add --dry-run -- tests/lib.sh common/.config/gotop/gotop.conf > "$tmp/out" 2> "$tmp/err"'
-
-if command -v rg > /dev/null; then
-    expect "ripgrep searches package files despite .gitignore" \
-        'rg -l --hidden "^export EDITOR=vim" common/.shell > "$tmp/out" && out_has common/.shell/env'
-else
-    skip "ripgrep search check -- rg isn't installed"
-fi
-expect ".ignore hides every .secret-paths pattern from search tools" \
-    'grep -vE "^(#|\$)" .secret-paths | while IFS= read -r p; do grep -qxF -- "$p" .ignore || echo "$p"; done > "$tmp/out"; [ ! -s "$tmp/out" ]'
-
 #
 # Secrets
 #
 
-expect "no tracked file looks like a secret (hooks/pre-commit passes)" 'hooks/pre-commit > "$tmp/out" 2> "$tmp/err"'
+for secret in \
+    common/.ssh/id_ed25519 common/.ssh/known_hosts \
+    common/.gnupg/private-keys-v1.d/x.key common/.password-store/x.gpg \
+    macos/.config/gh/hosts.yml common/.aws/credentials common/.aws/sso/cache/t.json \
+    common/.config/gcloud/credentials.db common/.kube/config common/.docker/config.json \
+    common/.cargo/credentials.toml common/.netrc common/.git-credentials common/.npmrc \
+    common/.pypirc common/.env common/.env.local common/.envrc host-thinkpad/server.pem \
+    common/.zsh_history common/.shell/local/env common/.zsh/local/env \
+    common/.claude/.credentials.json common/.claude/projects/x.jsonl \
+    common/.claude/settings.local.json common/.claude.json common/.claude.json.backup
+do
+    expect "gitignore catches $secret" 'git check-ignore -q "$secret"'
+done
+
+for kept in common/.ssh/config macos/.config/gh/config.yml common/.zshrc common/.claude/CLAUDE.md \
+    tests/zz-new.sh profiles/zz-new
+do
+    expect "gitignore leaves $kept trackable" '! git check-ignore -q "$kept"'
+done
+
+
+expect "no tracked file is ignored or looks like a secret (hooks/pre-commit passes)" 'hooks/pre-commit > "$tmp/out" 2> "$tmp/err"'
 
 copy_repo
 # refused <path>: stage the file (already written) with -f and run the hook

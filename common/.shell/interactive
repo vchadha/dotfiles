@@ -37,19 +37,6 @@ dots() {
     if [ "$1" = install ]; then
         shift
         "$repo/install.sh" "$@"
-    elif [ "$1" = pull ] && [ -n "$(git -C "$repo" ls-files --others --ignored --exclude-standard -- ':!*.DS_Store')" ]; then
-        # git overwrites ignored files without asking, and a new file in a
-        # package stays ignored until it's added. pull has no flag against
-        # that, so refuse; a plain `git pull` or rebase in the repo isn't
-        # covered.
-        echo "dots: commit these or move them out of the repo first; a pull could overwrite them:" >&2
-        git -C "$repo" ls-files --others --ignored --exclude-standard -- ':!*.DS_Store' | sed 's/^/  /' >&2
-        return 1
-    elif [ "$1" = checkout ] || [ "$1" = switch ] || [ "$1" = merge ]; then
-        # These do have the flag
-        local cmd=$1
-        shift
-        git -C "$repo" "$cmd" --no-overwrite-ignore "$@"
     else
         git -C "$repo" "$@"
     fi

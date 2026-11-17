@@ -2,14 +2,9 @@
 # ~/.bash_profile
 #
 
-# Source bash env
-source $HOME/.bash/env
+source $HOME/.shell/env
 
-# Source bash login
-source $HOME/.bash/login
-
-# Source bash interactive if interactive shell
+# bash unsets PS1 when it isn't interactive
 if [ "$PS1" ]; then
     source $HOME/.bash/interactive
 fi
-
